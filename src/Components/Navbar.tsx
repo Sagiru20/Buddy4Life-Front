@@ -44,7 +44,7 @@ function MyTabs() {
                     value={pagesPaths[index]}
                     to={pagesPaths[index]}
                     component={Link}
-                    sx={{ color: "white", display: "block" }}
+                    sx={{ color: "white" }}
                 />
             ))}
         </Tabs>
@@ -54,10 +54,10 @@ function MyTabs() {
 function TabsRouter() {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route path="*" />
-            </Routes>
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+                <Routes>
+                    <Route path="*" />
+                </Routes>
                 <MyTabs />
             </Box>
         </BrowserRouter>

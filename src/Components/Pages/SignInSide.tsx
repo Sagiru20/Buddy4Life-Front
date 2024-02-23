@@ -41,7 +41,7 @@ const signInTheme = createTheme(appTheme, {
     },
 });
 
-export default function SignInSide() {
+function SignIn() {
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -147,3 +147,5 @@ export default function SignInSide() {
         </ThemeProvider>
     );
 }
+
+export default SignIn;

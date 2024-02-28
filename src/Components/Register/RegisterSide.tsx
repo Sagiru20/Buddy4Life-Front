@@ -7,6 +7,8 @@ import DogParkImage from "../../assets/dog_park.jpg";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { blue, red } from "@mui/material/colors";
 import { appTheme } from "../AppTheme";
+import { registrUser, IUser } from '../../services/user-services'
+
 
 
 
@@ -54,8 +56,25 @@ export default function RegisterSide() {
     console.log('Last Name:', lastName);
     console.log('Email:', email);
     console.log('Password:', password);
+    register()
 
 };
+
+
+const register = async () => {
+    //TODO add Image Url!
+    // const url = await uploadPhoto(imgSrc!);
+    // console.log("upload returned:" + url);
+    const user: IUser = {
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName
+    }
+
+    const res = await registrUser(user)
+    console.log(res)
+}
 
   const handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 

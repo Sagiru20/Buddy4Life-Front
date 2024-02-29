@@ -1,18 +1,30 @@
 import { useState, MouseEvent } from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import Avatar from "@mui/material/Avatar";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
+import { Link, matchPath, useLocation } from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
-import { BrowserRouter } from "react-router-dom";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import { Route, Routes, Link, matchPath, useLocation } from "react-router-dom";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { blue } from "@mui/material/colors";
+import {
+    Typography,
+    Tooltip,
+    Toolbar,
+    Tabs,
+    Tab,
+    Menu,
+    MenuItem,
+    IconButton,
+    Button,
+    Box,
+    Avatar,
+    AppBar,
+} from "@mui/material";
+
+const tabsTheme = createTheme({
+    palette: {
+        primary: blue,
+    },
+});
 
 function useRouteMatch(patterns: readonly string[]) {
     const { pathname } = useLocation();
@@ -29,42 +41,31 @@ function useRouteMatch(patterns: readonly string[]) {
 }
 
 function MyTabs() {
-    const pages = ["Posts", "MyPosts", "Breeds"];
+    const pages = ["posts", "breeds"];
     const pagesPaths = pages.map((page) => "/" + page);
 
-    const routeMatch = useRouteMatch(["/Posts", "/MyPosts", "/Breeds"]);
+    const routeMatch = useRouteMatch(pagesPaths);
     const currentTab = routeMatch?.pattern?.path;
 
     return (
-        <Tabs value={currentTab}>
-            {pages.map((page, index) => (
-                <Tab
-                    key={index}
-                    label={page}
-                    value={pagesPaths[index]}
-                    to={pagesPaths[index]}
-                    component={Link}
-                    sx={{ color: "white" }}
-                />
-            ))}
-        </Tabs>
+        <ThemeProvider theme={tabsTheme}>
+            <Tabs value={currentTab} indicatorColor="primary" textColor="primary" sx={{ marginRight: 3 }}>
+                {pages.map((page, index) => (
+                    <Tab
+                        key={index}
+                        label={page}
+                        value={pagesPaths[index]}
+                        to={pagesPaths[index]}
+                        component={Link}
+                        sx={{ color: "white", fontWeight: "bold" }}
+                    />
+                ))}
+            </Tabs>
+        </ThemeProvider>
     );
 }
 
-function TabsRouter() {
-    return (
-        <BrowserRouter>
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-                <Routes>
-                    <Route path="*" />
-                </Routes>
-                <MyTabs />
-            </Box>
-        </BrowserRouter>
-    );
-}
-
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Logout"];
 
 function Navbar() {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -78,40 +79,51 @@ function Navbar() {
     };
 
     return (
-        <AppBar>
-            <Toolbar>
-                <PetsIcon sx={{ mr: 1 }} />
-                <Typography
-                    variant="h5"
-                    noWrap
-                    component="a"
-                    href="Posts"
-                    sx={{
-                        mr: 2,
-                        display: { xs: "none", md: "flex" },
-                        fontFamily: "monospace",
-                        fontWeight: 700,
-                        letterSpacing: ".3rem",
-                        color: "inherit",
-                        textDecoration: "none",
-                    }}
-                >
-                    Buddy4Life
-                </Typography>
+        <AppBar position="sticky">
+            <Toolbar sx={{ justifyContent: "space-between" }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <PetsIcon sx={{ mr: 1 }} />
+                    <Typography
+                        variant="h5"
+                        noWrap
+                        component="a"
+                        href="posts"
+                        sx={{
+                            mr: 2,
+                            fontFamily: "monospace",
+                            fontWeight: 700,
+                            letterSpacing: ".3rem",
+                            color: "inherit",
+                            textDecoration: "none",
+                        }}
+                    >
+                        Buddy4Life
+                    </Typography>
 
-                <TabsRouter />
-                {/* <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-                    {pages.map((page) => (
-                        <Button key={page} sx={{ my: 2, color: "white", display: "block" }}>
-                            <RouterLink to={`/${page}`}>{page}</RouterLink>
-                        </Button>
-                    ))}
-                </Box> */}
+                    <MyTabs />
+                    <Button key="New Post" variant="contained" color="secondary" startIcon={<AddCircleIcon />}>
+                        New Post
+                    </Button>
+                </Box>
 
-                <Box sx={{ flexGrow: 0 }}>
+                <Box>
+                    <Typography
+                        variant="body1"
+                        noWrap
+                        component="span"
+                        sx={{
+                            mr: 1,
+                            fontWeight: 500,
+                            letterSpacing: ".2rem",
+                            color: "inherit",
+                            textDecoration: "none",
+                        }}
+                    >
+                        User Name
+                    </Typography>
                     <Tooltip title="Open settings">
-                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                        <IconButton onClick={handleOpenUserMenu}>
+                            <Avatar src="/static/images/avatar/2.jpg" />
                         </IconButton>
                     </Tooltip>
                     <Menu

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react'; 
+import { useState, useEffect } from 'react'; 
 import {
   Button,
   Modal,
@@ -7,46 +7,46 @@ import {
   Typography,
   TextField,
 } from '@mui/material';
-
-export interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+import { IUser, updateUser } from "../../services/user-services"
 
 export interface UserProfileModalProps {
     isOpen: boolean;
-    user: User;
+    user: IUser;
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, isOpen }) => {
+const UserProfileModal: React.FC<UserProfileModalProps> = ({ user , isOpen }) => {
 
     const [editedFirstName, setEditedFirstName] = useState(user.firstName);
     const [editedLastName, setEditedLastName] = useState(user.lastName);
     const [editedEmail, setEditedEmail] = useState(user.email);
     const [isEditing, setIsEditing] = useState(false)
   
+    useEffect(() => {
+
+      initUserDetails()
+     
+    }, [user]);
+
+    const initUserDetails = () => {
+      setEditedFirstName(user.firstName); 
+      setEditedLastName(user.lastName)
+      setEditedEmail(user.email);
+    };
 
   const enableEdit = () => {
     setIsEditing(true); 
   };
 
-  const updateUser = (updatedUser: User) => {
+  const handleSave = async () => {
 
-    //TODO: save updated user in DB 
-    console.log('Updated user:', updatedUser);
-    
-  };
-
-  const handleSave = () => {
-
-    const updatedUser: User = {
+    const updatedUser: IUser = {
+      _id: user._id,
       firstName: editedFirstName,
       lastName: editedLastName,
       email: editedEmail,
     };
 
-    updateUser(updatedUser);
+    await updateUser(updatedUser);
     setIsEditing(false); 
   };
 

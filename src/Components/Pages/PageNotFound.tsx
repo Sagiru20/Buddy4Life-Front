@@ -5,7 +5,7 @@ function PageNotFound() {
         <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="70vh">
             <Box
                 sx={{
-                    width: "60%",
+                    height: "50%",
                     mb: 10,
                 }}
                 component="img"

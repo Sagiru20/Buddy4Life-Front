@@ -5,7 +5,7 @@ const EllipsisTypography = styled(Typography)({
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
-    WebkitLineClamp: 3, // Number of lines to show
+    WebkitLineClamp: 3,
     textOverflow: "ellipsis",
 });
 

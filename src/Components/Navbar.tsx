@@ -83,6 +83,7 @@ function Navbar() {
             <Toolbar sx={{ justifyContent: "space-between" }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <PetsIcon sx={{ mr: 1 }} />
+                    
                     <Typography
                         variant="h5"
                         noWrap
@@ -101,6 +102,7 @@ function Navbar() {
                     </Typography>
 
                     <MyTabs />
+                    
                     <Button key="New Post" variant="contained" color="secondary" startIcon={<AddCircleIcon />}>
                         New Post
                     </Button>
@@ -114,18 +116,19 @@ function Navbar() {
                         sx={{
                             mr: 1,
                             fontWeight: 500,
-                            letterSpacing: ".2rem",
                             color: "inherit",
                             textDecoration: "none",
                         }}
                     >
                         User Name
                     </Typography>
+                    
                     <Tooltip title="Open settings">
                         <IconButton onClick={handleOpenUserMenu}>
                             <Avatar src="/static/images/avatar/2.jpg" />
                         </IconButton>
                     </Tooltip>
+                    
                     <Menu
                         sx={{ mt: "45px" }}
                         id="menu-appbar"

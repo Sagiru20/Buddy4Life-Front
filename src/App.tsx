@@ -8,8 +8,6 @@ import Breeds from "./Components/Pages/Breeds";
 import PageNotFound from "./Components/Pages/PageNotFound";
 import { Box, CssBaseline } from "@mui/material";
 
-import Post from "./Components/Pages/Post";
-
 function App() {
     return (
         <ThemeProvider theme={appTheme}>
@@ -18,16 +16,14 @@ function App() {
                 <BrowserRouter>
                     <Navbar />
 
-                    <Post />
-
-                    {/* <Routes>
+                    <Routes>
                         <Route path="/" element={<Outlet />}>
                             <Route index element={<Navigate to="posts" />} />
                             <Route path="posts" element={<Posts />} />
                             <Route path="breeds" element={<Breeds />} />
                             <Route path="*" element={<PageNotFound />} />
                         </Route>
-                    </Routes> */}
+                    </Routes>
                 </BrowserRouter>
             </Box>
         </ThemeProvider>

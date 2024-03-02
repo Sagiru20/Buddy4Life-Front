@@ -1,26 +1,58 @@
+import { useState, useEffect, ChangeEvent, SyntheticEvent } from "react";
+import { IPost, IBreed, Gender } from "../../Models";
+import { getPosts } from "../../BackendClient";
+import { getBreeds } from "../../DogBreedApi";
 import PostCard from "../PostCard";
 import PostsTypeToggleButton from "../PostsTypeToggleButton";
-import { Autocomplete, Box, Container, Divider, Grid, TextField, Stack } from "@mui/material";
-
-const posts = [
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-    { name: "Macy", breed: "Alaskan", age: 12, description: "Description for Card 1" },
-];
-
-const category = ["Rehome", "Adopt"];
-const breeds = ["Breed 1", "Breed 2", "Breed 3", "Breed 4", "Breed 5"];
-const cities = ["Tel Aviv", "Raanana", "Jerusalem", "Herzliya"];
+import SearchIcon from "@mui/icons-material/Search";
+import { Autocomplete, Box, Container, Divider, Grid, IconButton, TextField, Stack } from "@mui/material";
 
 function Posts() {
+    const [posts, setPosts] = useState<IPost[]>([]);
+    const [breeds, setBreeds] = useState<IBreed[]>([]);
+
+    const [gender, setGender] = useState<Gender | null>(null);
+    const [breed, setBreed] = useState<string | null>(null);
+    const [city, setCity] = useState<string>("");
+
+    const handleGenderChange = (_event: SyntheticEvent<Element, Event>, newGender: Gender | null) => {
+        setGender(newGender);
+    };
+
+    const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: string | null) => {
+        setBreed(newBreed);
+    };
+
+    const handleCityChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setCity(event.target.value);
+    };
+
+    const fetchPosts = async () => {
+        try {
+            const posts = await getPosts({ gender: gender, breed: breed, city: city });
+            posts && setPosts(posts);
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+    }, []);
+
+    useEffect(() => {
+        const fetchBreeds = async () => {
+            try {
+                const breeds = await getBreeds();
+                breeds && setBreeds(breeds);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+            }
+        };
+
+        fetchBreeds();
+    }, []);
+
     return (
         <Box
             sx={{
@@ -38,38 +70,64 @@ function Posts() {
             <Stack direction="row" spacing={8} justifyContent="center" sx={{ mb: 5, width: "100%" }}>
                 <Autocomplete
                     disablePortal
-                    id="category-autocomplete"
-                    options={category}
+                    id="gender-autocomplete"
+                    options={Object.values(Gender)}
                     sx={{ width: 200 }}
-                    renderInput={(params) => <TextField {...params} label="Category" variant="outlined" />}
+                    onChange={handleGenderChange}
+                    renderInput={(params) => <TextField {...params} label="Gender" variant="outlined" />}
                 />
 
                 <Autocomplete
                     disablePortal
                     id="breed-autocomplete"
-                    options={breeds}
-                    sx={{ width: 200 }}
+                    options={breeds.map((breed) => breed.breedName)}
+                    sx={{ width: 250 }}
+                    onChange={handleBreedChange}
                     renderInput={(params) => <TextField {...params} label="Breed" variant="outlined" />}
                 />
 
-                <Autocomplete
-                    disablePortal
-                    id="city-autocomplete"
-                    options={cities}
+                <TextField
+                    variant="outlined"
+                    label="City"
+                    id="city-textfield"
+                    value={city}
+                    onChange={handleCityChange}
                     sx={{ width: 200 }}
-                    renderInput={(params) => <TextField {...params} label="City" variant="outlined" />}
                 />
+
+                <IconButton
+                    onClick={fetchPosts}
+                    sx={{
+                        width: "60px",
+                        borderRadius: 1,
+                        backgroundColor: "primary.main",
+                        "&:hover": { backgroundColor: "primary.light" },
+                    }}
+                >
+                    <SearchIcon />
+                </IconButton>
             </Stack>
 
             <Container>
                 <Divider flexItem sx={{ mb: 5 }} />
                 <Grid container spacing={12} display="flex">
-                    {posts.map((post) => (
-                        <Grid item xs={12} sm={12} md={6} lg={4} xl={4} display="flex" justifyContent="center">
+                    {posts.map((post, index) => (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={12}
+                            md={6}
+                            lg={4}
+                            xl={4}
+                            key={index}
+                            display="flex"
+                            justifyContent="center"
+                        >
                             <PostCard
-                                name={post.name}
-                                breed={post.breed}
-                                age={post.age}
+                                name={post.dogInfo!.name!}
+                                breed={post.dogInfo!.breed!}
+                                gender={post.dogInfo!.gender!}
+                                age={post.dogInfo!.age!}
                                 description={post.description}
                             />
                         </Grid>

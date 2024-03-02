@@ -1,22 +1,34 @@
-import { Button, Card, CardMedia, CardContent, CardActions, Typography, Divider, Stack } from "@mui/material";
-import { styled } from "@mui/system";
+import {
+    Button,
+    Card,
+    CardMedia,
+    CardContent,
+    CardActions,
+    Tooltip,
+    Typography,
+    Divider,
+    Stack,
+    styled,
+} from "@mui/material";
+import { Gender } from "../Models";
 
 const EllipsisTypography = styled(Typography)({
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
-    WebkitLineClamp: 3,
+    WebkitLineClamp: 1,
     textOverflow: "ellipsis",
 });
 
 interface Props {
     name: string;
     breed: string;
+    gender: Gender;
     age: number;
     description: string;
 }
 
-export default function PostCard({ name, breed, age, description }: Props) {
+export default function PostCard({ name, breed, gender, age, description }: Props) {
     return (
         <Card sx={{ width: 345, borderRadius: 3 }}>
             <CardMedia component="img" alt="Dog Image" height="140" image="/src/assets/dog_image.jpg" />
@@ -32,8 +44,24 @@ export default function PostCard({ name, breed, age, description }: Props) {
                     spacing={1}
                     sx={{ mb: 1 }}
                 >
-                    <Typography variant="body1">{breed != null ? breed : "Breed"}</Typography>
+                    <Typography variant="body1">
+                        {gender != null ? gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase() : "Gender"}
+                    </Typography>
+
                     <Typography variant="body1">{age != null ? age : 12}</Typography>
+
+                    <Tooltip title={breed}>
+                        <Typography
+                            variant="body1"
+                            style={{
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            {breed != null ? breed : "Breed"}
+                        </Typography>
+                    </Tooltip>
                 </Stack>
 
                 <EllipsisTypography variant="body2" color="text.secondary">

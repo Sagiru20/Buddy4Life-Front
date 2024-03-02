@@ -10,6 +10,7 @@ import {
     Stack,
     styled,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { Gender } from "../Models";
 
 const EllipsisTypography = styled(Typography)({
@@ -21,6 +22,7 @@ const EllipsisTypography = styled(Typography)({
 });
 
 interface Props {
+    id: string;
     name: string;
     breed: string;
     gender: Gender;
@@ -28,7 +30,7 @@ interface Props {
     description: string;
 }
 
-export default function PostCard({ name, breed, gender, age, description }: Props) {
+export default function PostCard({ id, name, breed, gender, age, description }: Props) {
     return (
         <Card sx={{ width: 345, borderRadius: 3 }}>
             <CardMedia component="img" alt="Dog Image" height="140" image="/src/assets/dog_image.jpg" />
@@ -70,7 +72,7 @@ export default function PostCard({ name, breed, gender, age, description }: Prop
             </CardContent>
 
             <CardActions>
-                <Button size="small" sx={{ fontWeight: "bold" }}>
+                <Button size="small" sx={{ fontWeight: "bold" }} component={RouterLink} to={`/post/${id}`}>
                     Read More
                 </Button>
             </CardActions>

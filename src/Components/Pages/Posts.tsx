@@ -46,7 +46,7 @@ function Posts() {
                 const breeds = await getBreeds();
                 breeds && setBreeds(breeds);
             } catch (error) {
-                console.error("Error fetching posts:", error);
+                console.error("Error fetching breeds:", error);
             }
         };
 
@@ -124,6 +124,7 @@ function Posts() {
                             justifyContent="center"
                         >
                             <PostCard
+                                id={post._id}
                                 name={post.dogInfo!.name!}
                                 breed={post.dogInfo!.breed!}
                                 gender={post.dogInfo!.gender!}

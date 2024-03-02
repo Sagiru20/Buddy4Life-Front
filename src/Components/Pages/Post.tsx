@@ -1,17 +1,47 @@
-import { Box, Card, CardMedia, CardContent, Container, Grid, Typography, Stack } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getPost } from "../../BackendClient";
+import { Box, Card, CardMedia, CardContent, Container, CircularProgress, Grid, Typography, Stack } from "@mui/material";
 import Core from "../Core";
-
-const post_fields = {
-    Name: "Macy",
-    Breed: "Alaskan",
-    Gender: "Female",
-    Age: 12,
-    Weight: 34,
-    Height: 41,
-    Color: "Brown",
-};
+import { IPost } from "../../Models";
 
 function Post() {
+    const { id } = useParams();
+    const [post, setPost] = useState<IPost | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPost = async () => {
+            try {
+                const post = await getPost(id!);
+                post && setPost(post);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPost();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <Box sx={{ display: "flex" }}>
+                <Typography>Loading...</Typography>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (!post) {
+        return (
+            <Box sx={{ display: "flex" }}>
+                <Typography>Post not found</Typography>
+            </Box>
+        );
+    }
+
     return (
         <Box
             sx={{
@@ -29,7 +59,7 @@ function Post() {
                             <CardMedia
                                 component="img"
                                 alt="Dog Image"
-                                image="/src/assets/dog_image.jpg"
+                                image={post?.imageUrl ?? "/src/assets/dog_image.jpg"}
                                 sx={{ height: "100%", width: "100%" }}
                             />
                         </Card>
@@ -45,24 +75,32 @@ function Post() {
                                     sx={{
                                         fontFamily: "monospace",
                                         fontWeight: 600,
-                                        letterSpacing: ".2rem",
+                                        letterSpacing: ".1rem",
                                         color: "inherit",
                                         textDecoration: "none",
                                         mb: 3,
                                     }}
                                 >
-                                    Post Title
+                                    {post.title}
                                 </Typography>
 
                                 <Stack direction="column" spacing={2}>
-                                    {Object.entries(post_fields).map(([key, value]) => (
-                                        <Box display="flex" flexDirection="row" justifyContent="space-between">
-                                            <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
-                                                {key}:
-                                            </Typography>
-                                            <Typography variant="body1">{value}</Typography>
-                                        </Box>
-                                    ))}
+                                    {Object.entries(post.dogInfo).map(
+                                        ([key, value]) =>
+                                            key !== "_id" && (
+                                                <Box display="flex" flexDirection="row" justifyContent="space-between">
+                                                    <Typography
+                                                        variant="body1"
+                                                        component="div"
+                                                        sx={{ fontWeight: 600 }}
+                                                    >
+                                                        {key}:
+                                                    </Typography>
+
+                                                    <Typography variant="body1">{value ?? "-"}</Typography>
+                                                </Box>
+                                            )
+                                    )}
                                 </Stack>
                             </CardContent>
                         </Card>
@@ -88,22 +126,7 @@ function Post() {
                                 </Typography>
 
                                 <Box>
-                                    <Typography variant="body1">
-                                        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots
-                                        in a piece of classical Latin literature from 45 BC, making it over 2000 years
-                                        old. Richard McClintock, a Latin professor at Hampden-Sydney College in
-                                        Virginia, looked up one of the more obscure Latin words, consectetur, from a
-                                        Lorem Ipsum passage, and going through the cites of the word in classical
-                                        literature, discovered the undoubtable source. Lorem Ipsum comes from sections
-                                        1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and
-                                        Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of
-                                        ethics, very popular during the Renaissance. The first line of Lorem Ipsum,
-                                        "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32. The
-                                        standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those
-                                        interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by
-                                        Cicero are also reproduced in their exact original form, accompanied by English
-                                        versions from the 1914 translation by H. Rackham.
-                                    </Typography>
+                                    <Typography variant="body1">{post.description}</Typography>
                                 </Box>
                             </CardContent>
                         </Card>

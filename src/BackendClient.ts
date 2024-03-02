@@ -16,7 +16,6 @@ interface GetPostsQueryParams {
 }
 
 export async function getPosts(queryParams: GetPostsQueryParams) {
-    console.log(queryParams);
     queryParams = {
         ...queryParams,
         ...Object.fromEntries(Object.entries(queryParams).map(([key, value]) => [key, value || null])),
@@ -28,5 +27,14 @@ export async function getPosts(queryParams: GetPostsQueryParams) {
         return data;
     } catch (error) {
         console.error("Error fetching posts: ", error);
+    }
+}
+
+export async function getPost(id: string) {
+    try {
+        const { data } = await axios.get<IPost>(`/post/${id}`, backendConfig);
+        return data;
+    } catch (error) {
+        console.error(`Error fetching post with id ${id}: `, error);
     }
 }

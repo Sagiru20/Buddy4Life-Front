@@ -15,7 +15,7 @@ export interface IDogInfo {
 }
 
 export interface IPost {
-    _id?: string;
+    _id: string;
     title: string;
     ownerId: string;
     description: string;

@@ -89,7 +89,7 @@ function SignIn() {
         try {
 
             await loginUser(user)
-            navigate('/explore')
+            navigate('/')
 
         } catch (error) {
 

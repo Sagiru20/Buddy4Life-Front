@@ -1,10 +1,11 @@
 import { Button, Stack, Typography, Dialog, DialogTitle, DialogContent } from "@mui/material";
 
-const ConfirmDelete = ({ onOpen, onClose, id }) => {
+const ConfirmDelete = ({ onOpen, onClose, id, onDel, comId }) => {
     return (
         <Dialog open={onOpen} onClose={onClose}>
             <DialogContent sx={{ maxWidth: "430px" }}>
                 <DialogTitle sx={{ p: "0", marginBottom: "20px" }}>Delete comment</DialogTitle>
+
                 <Typography
                     component="p"
                     sx={{
@@ -12,8 +13,10 @@ const ConfirmDelete = ({ onOpen, onClose, id }) => {
                         color: "hsl(211, 10%, 45%)",
                     }}
                 >
-                    Are you sure you want to delete this comment? This will remove the comment and it can't be undone.
+                    Are you sure you want to delete this comment? This will remove the comment and it can't be
+                    undone.
                 </Typography>
+
                 <Stack direction="row" display="flex" justifyContent="space-between">
                     <Button
                         variant="contained"
@@ -26,6 +29,7 @@ const ConfirmDelete = ({ onOpen, onClose, id }) => {
                     >
                         No, cancel
                     </Button>
+
                     <Button
                         variant="contained"
                         disableElevation

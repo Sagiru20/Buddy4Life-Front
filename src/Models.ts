@@ -14,6 +14,14 @@ export interface IDogInfo {
     _id?: string;
 }
 
+export interface IComment {
+    _id: string;
+    authorId: string;
+    text: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface IPost {
     _id: string;
     title: string;
@@ -22,8 +30,9 @@ export interface IPost {
     dogInfo: IDogInfo;
     city?: string;
     imageUrl?: string;
+    comments: IComment[];
     createdAt: Date;
-    updatedAt?: Date;
+    updatedAt: Date;
 }
 
 export interface IBreed {

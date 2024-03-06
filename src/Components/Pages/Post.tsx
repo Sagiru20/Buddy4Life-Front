@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPost } from "../../BackendClient";
 import { Box, Card, CardMedia, CardContent, Container, CircularProgress, Grid, Typography, Stack } from "@mui/material";
-import Core from "../Core";
+import CommentSection from "../CommentSection";
 import { IPost } from "../../Models";
 
 function Post() {
@@ -151,7 +151,7 @@ function Post() {
                                     Comments
                                 </Typography>
 
-                                <Core />
+                                <CommentSection comments={post.comments} />
                             </CardContent>
                         </Card>
                     </Grid>

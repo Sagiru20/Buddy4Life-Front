@@ -4,7 +4,7 @@ import { Gender, IPost } from "./Models";
 const backendConfig: AxiosRequestConfig = {
     baseURL: "http://localhost:9000/",
     headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWQwZTFhMzZjY2EyYjk5ZGNjODY3NGUiLCJpYXQiOjE3MDk0MDMwMzksImV4cCI6MTcwOTQyMTAzOX0.nFvnj3fYUlByyJZh6-q9gn96VRs6IoVkyY7wVL3iNss`,
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWQwZTFhMzZjY2EyYjk5ZGNjODY3NGUiLCJpYXQiOjE3MDk3Mjk2MTAsImV4cCI6MTcxMDkzOTIxMH0.ZrSbFyKG2mjHBA4EiO15tcC7WKPy_p1KDF16PQ0VGQ0`,
     },
 };
 

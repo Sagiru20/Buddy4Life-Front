@@ -9,27 +9,16 @@ import EditableCommentField from "./Reusable/Comment/EditableCommentField";
 import EditButton from "./Reusable/Buttons/TextButtons/EditButton";
 import DeleteButton from "./Reusable/Buttons/TextButtons/DeleteButton";
 import UpdateButton from "./Reusable/Buttons/BgButtons/UpdateButton";
+import { IComment } from "../Models";
 
-interface Props {
-    id: string;
-    content: string;
-    createdAt: string;
-    user: {
-        image?: {
-            png: string;
-            webp: string;
-        };
-        username: string;
-    };
-}
-
-const Comment = ({ id, content, createdAt, user }: Props) => {
-    const userName = user.username;
+const Comment = ({ _id, text, updatedAt }: IComment) => {
+    // const userName = user.username;
+    const userName = "Annonuymus";
     const ava = "/static/images/avatar/2.jpg";
 
     // const [clicked, setClicked] = useState(false);
     const [editingComm, setEditingComm] = useState(false);
-    const [commentText, setCommentText] = useState(content);
+    const [commentText, setCommentText] = useState(text);
     const [openModal, setOpenModal] = useState(false);
 
     const handleOpen = () => {
@@ -42,7 +31,7 @@ const Comment = ({ id, content, createdAt, user }: Props) => {
 
     return (
         <>
-            <ConfirmDelete onOpen={openModal} onClose={handleClose} id={id} />
+            <ConfirmDelete onOpen={openModal} onClose={handleClose} id={_id} />
 
             <Card style={{ backgroundColor: "#f5f5f5" }}>
                 <Box sx={{ p: 2 }}>
@@ -54,12 +43,13 @@ const Comment = ({ id, content, createdAt, user }: Props) => {
 
                                     <Username userName={userName} />
 
-                                    <CreatedAt createdAt={createdAt} />
+                                    <CreatedAt createdAt={updatedAt} />
                                 </Stack>
 
-                                {userName === "juliusomo" && (
+                                {userName === "Annonuymus" && (
                                     <Stack direction="row" spacing={1}>
                                         <DeleteButton functionality={() => handleOpen()} />
+
                                         <EditButton
                                             functionality={() => setEditingComm(!editingComm)}
                                             editingComm={editingComm}
@@ -75,6 +65,7 @@ const Comment = ({ id, content, createdAt, user }: Props) => {
                                         setCommentText={setCommentText}
                                         placeHolder="Don't leave this blank!"
                                     />
+
                                     <UpdateButton
                                         commentText={commentText}
                                         editingComm={editingComm}

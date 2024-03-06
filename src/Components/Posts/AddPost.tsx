@@ -144,7 +144,7 @@ export default function AddPost() {
       title: formData.title,
       description: formData.description,
       dogInfo: dogInfoDetails,
-      city: formData.city      
+      ...(typeof formData.city === 'string' && formData.city !== '' && { city: formData.city }),
     }
 
     const res = await createPost(post)

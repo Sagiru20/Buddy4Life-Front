@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Step,
   Stepper,
@@ -16,30 +16,37 @@ import {
   Modal
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
+import { createPost } from "../../services/posts-services"
 
-interface AddPostData {
-  category: /*'Rehome' | 'Adopt';*/ string
+
+export interface PostData {
   title: string;
+  description: string;
+  // Delete category
+  category: string;
   breed?: string;
-  gender?: /*'Male' | 'Female';*/ string
+  gender?: /*'male' | 'female';*/ string
   city: string;
   name?: string; 
-  age?: number; 
+  age: number; 
   weight?: number; 
   height?: number;
   color?: string;
   image?: File;
+  
 }
 
 interface AddPostProps {
-  onSubmit: (data: AddPostData) => void;
+  onSubmit: (data: PostData) => void;
 }
 
 const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState<AddPostData>({
-    category: 'Rehome', // Default category
+  const [formData, setFormData] = useState/*<PostData>*/({
     title: '',
+    description: '',
+    // Delete category
+    category: '',
     breed: '',
     gender: '',
     city: '',
@@ -52,6 +59,15 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
   });
 
   const [showErrors, setShowErrors] = useState(false);
+  const [breeds, setBreeds] = useState([]);
+
+
+  // useEffect(() => {
+  //   const fetchBreeds = async () => {
+  //       dddd
+  //   };
+  //   fetchBreeds();
+  // }, []);
 
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
@@ -68,7 +84,7 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
     setShowErrors(false)
     const currentStep = steps[activeStep];
     const requiredFields = currentStep.requiredFields || []; 
-    const hasAllRequiredFields = requiredFields.every((field) => !!formData[(field as keyof AddPostData)]);
+    const hasAllRequiredFields = requiredFields.every((field) => !!formData[(field as keyof PostData)]);
     console.log("value of required is " + hasAllRequiredFields)
   
     if (hasAllRequiredFields) {
@@ -87,63 +103,49 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, category: event.target.value, gender: undefined});
-  };
-
   const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, gender: event.target.value });
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    addPost()
   };
+
+  const addPost = async () => {
+    //TODO add Image Url!
+    // const url = await uploadPhoto(imgSrc!);
+    // console.log("upload returned:" + url);
+    const post = {
+      title: formData.title,
+      // Delete category
+      category: "rehome",
+      description: formData.description,
+      "dogInfo": {
+        breed: formData.breed,
+        gender: formData.gender,
+        city: formData.city,
+        name: formData.name,
+        age: formData.age,
+        weight: formData.weight,
+        height: formData.height,
+        color: formData.color,
+        image: formData.image
+      }
+      
+    }
+
+    const res = await createPost(post)
+    console.log(res)
+    // onSubmit(formData);
+    console.log(res)
+}
 
   const steps = [
     {
-      label: 'Let\'s get started',
+      label: 'Let\'s get started with some technical info:',
       content: (
         <>
-        <Typography variant="body2" sx={{ mr: 1 }} marginTop={2}>
-                      Would you like to Rehome or adopt a new dog?
-        </Typography>
-          <FormControl component="fieldset">
-            <RadioGroup aria-label="category" name="category" value={formData.category} onChange={handleCategoryChange}>
-              <FormControlLabel value="Rehome" control={<Radio />} label="Rehome" />
-              <FormControlLabel value="Adopt" control={<Radio />} label="Adopt" />
-            </RadioGroup>
-          </FormControl>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="title"
-            label="Post Title"
-            name="title"
-            value={formData.title}
-            error={formData.title == '' && showErrors}
-            onChange={handleInputChange}
-          />
-        </>
-      ),
-      requiredFields: ['title'],
-    },
-    {
-      label: 'Tell us about your dog',
-      content: formData.category === 'Rehome'
-      ? (
-        <>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="name"
-            label="Name"
-            name="name"
-            value={formData.name}
-            error={formData.name == '' && showErrors}
-            onChange={handleInputChange}
-          />
           <TextField
             margin="normal"
             required
@@ -167,8 +169,8 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
             error={formData.gender == '' && showErrors}
             onChange={handleGenderChange}
           >
-            <MenuItem value="Male">Male</MenuItem>
-            <MenuItem value="Female">Female</MenuItem>
+            <MenuItem value="male">Male</MenuItem>
+            <MenuItem value="female">Female</MenuItem>
           </TextField>
           <TextField
             margin="normal"
@@ -179,7 +181,7 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
             name="age"
             type="number"
             value={formData.age}
-            error={formData.age !== undefined && formData.age !== 0}
+            error={(formData.age == undefined || formData.age == 0) && showErrors}
             onChange={handleInputChange}
           />
           <TextField
@@ -221,48 +223,54 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
             onChange={handleInputChange}
           />
         </>
-      )
-      :
-       (
-          <>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="breed"
-              label="Breed"
-              name="breed"
-              value={formData.breed}
-              error={formData.breed == '' && showErrors}
-              onChange={handleInputChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="gender"
-              label="Gender"
-              name="gender"
-              select
-              value={formData.gender || ''}
-              error={formData.gender == '' && showErrors}
-              onChange={handleGenderChange}
-            >
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-            </TextField>
-            <TextField
-              margin="normal"
-              fullWidth
-              id="city"
-              label="City"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-            />
-          </>
-        ),
-        requiredFields: formData.category === 'Rehome'? ['gender', 'breed', 'name'] : ['gender', 'breed'],
+      ),
+      requiredFields: ['gender', 'breed', 'age'],
+    },
+    {
+      label: 'Tell us about your dog',
+      content:
+      (
+        <>
+        <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="name"
+            label="Dog's Name"
+            name="name"
+            value={formData.name}
+            error={formData.name == '' && showErrors}
+            onChange={handleInputChange}
+          />
+        <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="title"
+            label="Post Title"
+            name="title"
+            value={formData.title}
+            error={formData.title == '' && showErrors}
+            onChange={handleInputChange}
+          />
+          <TextField
+            size="medium"
+            margin="normal"
+            required
+            fullWidth
+            multiline
+            rows="6"
+            id="description"
+            label="describe your dog"
+            name="description"
+            value={formData.description}
+            error={formData.description == '' && showErrors}
+            onChange={handleInputChange}
+          />
+          
+        </>
+      ),
+        requiredFields: ['title', 'description', 'name']
       },
       {
         label: 'Upload Dog\'s Image',
@@ -302,14 +310,30 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
     },
   ]
         return (
-          // <Modal open={true} aria-labelledby="modal-modal-title"
-          // aria-describedby="modal-modal-description"
-          // sx={{
-          //   display: 'flex',
-          //   alignItems: 'center',
-          //   justifyContent: 'center',
-          // }}   >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Modal open={true} aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}   >
+             <Box
+              sx={{
+                display: 'flex',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '80%', 
+                maxWidth: '1000px', 
+                maxHeight: '600px',
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                p: 4,
+                overflowY: 'auto'
+              }}
+            >
+          {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}> */}
           <Stepper activeStep={activeStep} alternativeLabel  sx={{ width: '100%' }}>
             {steps.map((step) => (
               <Step key={step.label}>
@@ -337,7 +361,7 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
             ))}
           </Stepper>
           </Box>
-          // </Modal>
+          </Modal>
         );
       };
               

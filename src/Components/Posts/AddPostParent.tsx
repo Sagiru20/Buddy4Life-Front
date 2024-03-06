@@ -1,8 +1,8 @@
 import AddPost from "./AddPost";
-import { NewPostData } from "./AddPost";
+import { PostData } from "./AddPost";
 
 
-const onSubmit = (data: NewPostData) => {
+const onSubmit = (data: PostData) => {
 
     console.log("final post values:")
     console.log(data)

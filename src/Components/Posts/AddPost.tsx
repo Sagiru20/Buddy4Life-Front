@@ -22,8 +22,6 @@ import { createPost } from "../../services/posts-services"
 export interface PostData {
   title: string;
   description: string;
-  // Delete category
-  category: string;
   breed?: string;
   gender?: /*'male' | 'female';*/ string
   city: string;
@@ -32,35 +30,51 @@ export interface PostData {
   weight?: number; 
   height?: number;
   color?: string;
-  image?: File;
-  
+  // image?: File;
 }
 
-interface AddPostProps {
-  onSubmit: (data: PostData) => void;
+export interface IDogInfo {
+  name: string;
+  breed: string;
+  //TODO change to Gender
+  gender: string;
+  age: number;
+  weight?: number;
+  height?: number;
+  color?: string;
 }
 
-const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
+export interface IPostData {
+  title: string;
+  description: string;
+  dogInfo: IDogInfo;
+  city?: string;
+  imageUrl?: string;
+}
+
+// interface AddPostProps {
+//   onSubmit: (data: PostData) => void;
+// }
+
+export default function AddPost() {
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState/*<PostData>*/({
+  const [formData, setFormData] = useState<PostData>({
     title: '',
     description: '',
-    // Delete category
-    category: '',
+    city: '',
     breed: '',
     gender: '',
-    city: '',
     name: '',
     age: 0 ,
     weight: 0,
     height: 0,
     color: '',
-    image: undefined,
+    // image: undefined,
   });
 
   const [showErrors, setShowErrors] = useState(false);
-  const [breeds, setBreeds] = useState([]);
 
+  // const [breeds, setBreeds] = useState([]);
 
   // useEffect(() => {
   //   const fetchBreeds = async () => {
@@ -85,8 +99,7 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
     const currentStep = steps[activeStep];
     const requiredFields = currentStep.requiredFields || []; 
     const hasAllRequiredFields = requiredFields.every((field) => !!formData[(field as keyof PostData)]);
-    console.log("value of required is " + hasAllRequiredFields)
-  
+
     if (hasAllRequiredFields) {
       setActiveStep(activeStep + 1);
     } else {
@@ -116,23 +129,22 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
     //TODO add Image Url!
     // const url = await uploadPhoto(imgSrc!);
     // console.log("upload returned:" + url);
-    const post = {
-      title: formData.title,
-      // Delete category
-      category: "rehome",
-      description: formData.description,
-      "dogInfo": {
-        breed: formData.breed,
-        gender: formData.gender,
-        city: formData.city,
-        name: formData.name,
+    const dogInfoDetails: IDogInfo = {
+        breed: formData.breed!!,
+        gender: formData.gender!!,
+        name: formData.name!!,
         age: formData.age,
-        weight: formData.weight,
-        height: formData.height,
-        color: formData.color,
-        image: formData.image
-      }
-      
+        ...(formData.weight !== 0 && { weight: formData.weight }),
+        ...(formData.height !== 0 && { height: formData.height }),
+        ...(typeof formData.color === 'string' && formData.color !== '' && { color: formData.color }),
+        // image: formData.image
+    }
+
+    const post: IPostData = {
+      title: formData.title,
+      description: formData.description,
+      dogInfo: dogInfoDetails,
+      city: formData.city      
     }
 
     const res = await createPost(post)
@@ -364,5 +376,3 @@ const AddPost: React.FC<AddPostProps> = ({ onSubmit }) => {
           </Modal>
         );
       };
-              
-export default AddPost;

@@ -10,6 +10,7 @@ import { Box, CssBaseline } from "@mui/material";
 import Post from "./Components/Pages/Post";
 
 function App() {
+
     return (
         <ThemeProvider theme={appTheme}>
             <CssBaseline />

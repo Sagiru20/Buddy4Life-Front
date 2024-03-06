@@ -1,9 +1,6 @@
 import { useState } from "react";
-import { Avatar, Card, Stack } from "@mui/material";
-import { Box } from "@mui/system";
+import { Avatar, Box, Card, Stack, Typography } from "@mui/material";
 import ConfirmDelete from "./ConfirmDelete";
-import Username from "./Reusable/Username";
-import CreatedAt from "./Reusable/CreatedAt";
 import CommentText from "./Reusable/Comment/CommentText";
 import EditableCommentField from "./Reusable/Comment/EditableCommentField";
 import EditButton from "./Reusable/Buttons/TextButtons/EditButton";
@@ -37,13 +34,20 @@ const Comment = ({ _id, text, updatedAt }: IComment) => {
                 <Box sx={{ p: 2 }}>
                     <Stack spacing={2} direction="row">
                         <Box sx={{ width: "100%" }}>
-                            <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center">
+                            <Stack
+                                spacing={2}
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center"
+                            >
                                 <Stack spacing={2} direction="row" alignItems="center">
                                     <Avatar src={ava} />
 
-                                    <Username userName={userName} />
+                                    <Typography fontWeight="bold" sx={{ color: "hsl(212, 24%, 26%)" }}>
+                                        {userName}
+                                    </Typography>
 
-                                    <CreatedAt createdAt={updatedAt} />
+                                    <Typography sx={{ color: "hsl(211, 10%, 45%)" }}>{updatedAt}</Typography>
                                 </Stack>
 
                                 {userName === "Annonuymus" && (

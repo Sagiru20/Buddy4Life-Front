@@ -1,7 +1,11 @@
 import { Delete } from "@mui/icons-material";
 import { Button } from "@mui/material";
 
-const DeleteButton = ({ functionality }) => {
+interface Props {
+    functionality: () => void;
+}
+
+const DeleteButton = ({ functionality }: Props) => {
     return (
         <Button
             startIcon={<Delete />}
@@ -10,9 +14,7 @@ const DeleteButton = ({ functionality }) => {
                 fontWeight: 500,
                 textTransform: "capitalize",
             }}
-            onClick={() => {
-                functionality();
-            }}
+            onClick={functionality}
         >
             Delete
         </Button>

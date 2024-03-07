@@ -1,21 +1,25 @@
+import React from "react";
 import { Button } from "@mui/material";
 
-const UpdateButton = ({ commentText, editingComm, setEditingComm }) => {
+interface Props {
+    text: string;
+    setCommentText: React.Dispatch<React.SetStateAction<string>>;
+    isEditingComm: boolean;
+    setIsEditingComm: React.Dispatch<React.SetStateAction<boolean>>;
+    onEdit: (text: string) => void;
+}
+
+const UpdateButton = ({ text, setCommentText, isEditingComm, setIsEditingComm, onEdit }: Props) => {
     return (
         <Button
-            sx={{
-                float: "right",
-                bgcolor: "hsl(238, 40%, 52%)",
-                color: "#FFF",
-                p: "8px 25px",
-                "&:hover": {
-                    bgcolor: "hsl(239, 57%, 85%)",
-                },
-            }}
-            onClick={() => {
-                !commentText.trim()
-                    ? alert("If  you want to remove the comment text, just delete the comment.")
-                    : setEditingComm(!editingComm);
+            size="medium"
+            variant="contained"
+            color="secondary"
+            disabled={text.length === 0 || !text.trim()}
+            onClick={(e) => {
+                !text.trim() ? e.preventDefault() : onEdit(text.trim());
+                setCommentText(text.trim());
+                setIsEditingComm(!isEditingComm);
             }}
         >
             Update

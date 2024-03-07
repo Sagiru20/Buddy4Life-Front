@@ -1,7 +1,18 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPost } from "../../BackendClient";
-import { Box, Card, CardMedia, CardContent, Container, CircularProgress, Grid, Typography, Stack } from "@mui/material";
+import {
+    Box,
+    Card,
+    CardMedia,
+    CardContent,
+    Container,
+    CircularProgress,
+    Grid,
+    Typography,
+    Stack,
+} from "@mui/material";
+import PageNotFound from "./PageNotFound";
 import CommentSection from "../CommentSection";
 import { IPost } from "../../Models";
 
@@ -35,11 +46,7 @@ function Post() {
     }
 
     if (!post) {
-        return (
-            <Box sx={{ display: "flex" }}>
-                <Typography>Post not found</Typography>
-            </Box>
-        );
+        return <PageNotFound />;
     }
 
     return (
@@ -78,17 +85,28 @@ function Post() {
                                         letterSpacing: ".1rem",
                                         color: "inherit",
                                         textDecoration: "none",
-                                        mb: 3,
+                                        mb: 2,
                                     }}
                                 >
                                     {post.title}
+                                </Typography>
+
+                                <Typography variant="body1" component="div" sx={{ mb: 1 }}>
+                                    {/* TODO: Call backend to get owner name */}
+                                    Created by {post.ownerId}, last modified:{" "}
+                                    {post.updatedAt.toLocaleString()}
                                 </Typography>
 
                                 <Stack direction="column" spacing={2}>
                                     {Object.entries(post.dogInfo).map(
                                         ([key, value]) =>
                                             key !== "_id" && (
-                                                <Box display="flex" flexDirection="row" justifyContent="space-between">
+                                                <Box
+                                                    display="flex"
+                                                    flexDirection="row"
+                                                    justifyContent="space-between"
+                                                    key={key}
+                                                >
                                                     <Typography
                                                         variant="body1"
                                                         component="div"
@@ -151,7 +169,7 @@ function Post() {
                                     Comments
                                 </Typography>
 
-                                <CommentSection comments={post.comments} />
+                                <CommentSection post={post} />
                             </CardContent>
                         </Card>
                     </Grid>

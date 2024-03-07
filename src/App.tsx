@@ -10,7 +10,6 @@ import { Box, CssBaseline } from "@mui/material";
 import Post from "./Components/Pages/Post";
 
 function App() {
-
     return (
         <ThemeProvider theme={appTheme}>
             <CssBaseline />
@@ -22,7 +21,7 @@ function App() {
                         <Route path="/" element={<Outlet />}>
                             <Route index element={<Navigate to="posts" />} />
                             <Route path="posts" element={<Posts />} />
-                            <Route path="post/:id" element={<Post />} />
+                            <Route path="posts/:id" element={<Post />} />
                             <Route path="breeds" element={<Breeds />} />
                             <Route path="*" element={<PageNotFound />} />
                         </Route>

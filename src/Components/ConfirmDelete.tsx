@@ -1,8 +1,13 @@
 import { Button, Stack, Typography, Dialog, DialogTitle, DialogContent } from "@mui/material";
 
-const ConfirmDelete = ({ onOpen, onClose, id, onDel, comId }) => {
+interface Props {
+    isOpen: boolean;
+    onClose: (toDelete: boolean) => void;
+}
+
+const ConfirmDelete = ({ isOpen, onClose }: Props) => {
     return (
-        <Dialog open={onOpen} onClose={onClose}>
+        <Dialog open={isOpen} onClose={onClose}>
             <DialogContent sx={{ maxWidth: "430px" }}>
                 <DialogTitle sx={{ p: "0", marginBottom: "20px" }}>Delete comment</DialogTitle>
 
@@ -25,7 +30,9 @@ const ConfirmDelete = ({ onOpen, onClose, id, onDel, comId }) => {
                             bgcolor: "hsl(211, 10%, 45%)",
                             "&:hover": { bgcolor: "hsl(211, 10%, 45%)" },
                         }}
-                        onClick={onClose}
+                        onClick={() => {
+                            onClose(false);
+                        }}
                     >
                         No, cancel
                     </Button>
@@ -37,9 +44,9 @@ const ConfirmDelete = ({ onOpen, onClose, id, onDel, comId }) => {
                             bgcolor: "hsl(358, 79%, 66%)",
                             "&:hover": { bgcolor: "hsl(358, 79%, 66%)" },
                         }}
-                        // onClick={() => {
-                        //     onDel ? onDel(comId) : deleteComment(id);
-                        // }}
+                        onClick={() => {
+                            onClose(true);
+                        }}
                     >
                         Yes, delete
                     </Button>

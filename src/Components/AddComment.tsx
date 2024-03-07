@@ -1,11 +1,13 @@
-import { Avatar, Card, Stack } from "@mui/material";
-import { Box } from "@mui/system";
+import { Avatar, Box, Button, Card, Stack } from "@mui/material";
 import { useState } from "react";
 import EditableCommentField from "./Reusable/Comment/EditableCommentField";
-import SendButton from "./Reusable/Buttons/BgButtons/SendButton";
 
-const AddComment = () => {
-    const [commentTxt, setCommentTxt] = useState();
+interface Props {
+    handleSubmit: (text: string) => void;
+}
+
+const AddComment = ({ handleSubmit }: Props) => {
+    const [commentText, setCommentText] = useState("");
 
     return (
         <Card style={{ backgroundColor: "#f5f5f5" }}>
@@ -14,12 +16,23 @@ const AddComment = () => {
                     <Avatar src="/static/images/avatar/2.jpg" />
 
                     <EditableCommentField
-                        commentText={commentTxt}
-                        setCommentText={setCommentTxt}
+                        text={commentText}
+                        setCommentText={setCommentText}
                         placeHolder="Add a comment"
                     />
 
-                    <SendButton commentTxt={commentTxt} setCommentTxt={setCommentTxt} />
+                    <Button
+                        size="large"
+                        variant="contained"
+                        color="secondary"
+                        disabled={commentText.length === 0 || !commentText.trim()}
+                        onClick={(e) => {
+                            !commentText.trim() ? e.preventDefault() : handleSubmit(commentText.trim());
+                            setCommentText("");
+                        }}
+                    >
+                        Send
+                    </Button>
                 </Stack>
             </Box>
         </Card>

@@ -1,6 +1,13 @@
+import React from "react";
 import { TextField } from "@mui/material";
 
-const EditableCommentField = ({ commentText, setCommentText, placeHolder }) => {
+interface Props {
+    text: string;
+    setCommentText: React.Dispatch<React.SetStateAction<string>>;
+    placeHolder: string;
+}
+
+const EditableCommentField = ({ text, setCommentText, placeHolder }: Props) => {
     return (
         <TextField
             multiline
@@ -8,10 +15,11 @@ const EditableCommentField = ({ commentText, setCommentText, placeHolder }) => {
             minRows={4}
             id="outlined-multilined"
             placeholder={placeHolder}
-            value={commentText}
+            value={text}
             onChange={(e) => {
                 setCommentText(e.target.value);
             }}
+            sx={{ mt: 2 }}
         />
     );
 };

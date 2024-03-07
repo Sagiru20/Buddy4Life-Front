@@ -42,12 +42,16 @@ export default function PostCard({ id, name, breed, gender, age, description }: 
 
                 <Stack
                     direction="row"
-                    divider={<Divider orientation="vertical" flexItem sx={{ ml: 2, mr: 2, borderWidth: 1 }} />}
+                    divider={
+                        <Divider orientation="vertical" flexItem sx={{ ml: 2, mr: 2, borderWidth: 1 }} />
+                    }
                     spacing={1}
                     sx={{ mb: 1 }}
                 >
                     <Typography variant="body1">
-                        {gender != null ? gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase() : "Gender"}
+                        {gender != null
+                            ? gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase()
+                            : "Gender"}
                     </Typography>
 
                     <Typography variant="body1">{age != null ? age : 12}</Typography>
@@ -72,7 +76,7 @@ export default function PostCard({ id, name, breed, gender, age, description }: 
             </CardContent>
 
             <CardActions>
-                <Button size="small" sx={{ fontWeight: "bold" }} component={RouterLink} to={`/post/${id}`}>
+                <Button size="small" sx={{ fontWeight: "bold" }} component={RouterLink} to={`/posts/${id}`}>
                     Read More
                 </Button>
             </CardActions>

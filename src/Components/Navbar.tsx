@@ -1,5 +1,5 @@
-import { useState, MouseEvent } from "react";
-import { Link, matchPath, useLocation } from "react-router-dom";
+import { useState, useEffect, MouseEvent } from "react";
+import { Link as RouterLink, matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
@@ -46,17 +46,29 @@ function MyTabs() {
 
     const routeMatch = useRouteMatch(pagesPaths);
     const currentTab = routeMatch?.pattern?.path;
+    const [defaultTab, setDefaultTab] = useState<string | boolean>("/posts");
+
+    useEffect(() => {
+        if (!currentTab) {
+            setDefaultTab(false);
+        }
+    }, [currentTab]);
 
     return (
         <ThemeProvider theme={tabsTheme}>
-            <Tabs value={currentTab} indicatorColor="primary" textColor="primary" sx={{ marginRight: 3 }}>
+            <Tabs
+                value={currentTab || defaultTab}
+                indicatorColor="primary"
+                textColor="primary"
+                sx={{ marginRight: 3 }}
+            >
                 {pages.map((page, index) => (
                     <Tab
                         key={index}
                         label={page}
                         value={pagesPaths[index]}
                         to={pagesPaths[index]}
-                        component={Link}
+                        component={RouterLink}
                         sx={{ color: "white", fontWeight: "bold" }}
                     />
                 ))}
@@ -83,12 +95,12 @@ function Navbar() {
             <Toolbar sx={{ justifyContent: "space-between" }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     <PetsIcon sx={{ mr: 1 }} />
-                    
+
                     <Typography
                         variant="h5"
                         noWrap
-                        component="a"
-                        href="posts"
+                        component={RouterLink}
+                        to={"/posts"}
                         sx={{
                             mr: 2,
                             fontFamily: "monospace",
@@ -102,8 +114,13 @@ function Navbar() {
                     </Typography>
 
                     <MyTabs />
-                    
-                    <Button key="New Post" variant="contained" color="secondary" startIcon={<AddCircleIcon />}>
+
+                    <Button
+                        key="New Post"
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<AddCircleIcon />}
+                    >
                         New Post
                     </Button>
                 </Box>
@@ -122,13 +139,13 @@ function Navbar() {
                     >
                         User Name
                     </Typography>
-                    
+
                     <Tooltip title="Open settings">
                         <IconButton onClick={handleOpenUserMenu}>
                             <Avatar src="/static/images/avatar/2.jpg" />
                         </IconButton>
                     </Tooltip>
-                    
+
                     <Menu
                         sx={{ mt: "45px" }}
                         id="menu-appbar"

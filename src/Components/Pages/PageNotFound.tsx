@@ -1,4 +1,5 @@
 import { Box, Button } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 function PageNotFound() {
     return (
@@ -12,7 +13,9 @@ function PageNotFound() {
                 src="/src/assets/page_not_found.png"
             />
 
-            <Button variant="contained">Go Back To Safety</Button>
+            <Button variant="contained" component={RouterLink} to={"/posts"}>
+                Go Back To Safety
+            </Button>
         </Box>
     );
 }

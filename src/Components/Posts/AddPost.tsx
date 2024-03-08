@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent, useRef  } from 'react';
 import {
   Step,
   Stepper,
@@ -8,29 +8,29 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
   Box,
-  Modal
+  Modal,
+  Autocomplete
 } from '@mui/material';
-import { useDropzone } from 'react-dropzone';
-import { createPost } from "../../services/posts-services"
+import { useDropzone } from 'react-dropzone'
+import { createPost } from "../../services/posts-services";
+import { uploadPhoto } from '../../services/file-services';
+import { getBreeds } from '../../DogBreedApi';
+import { IBreed } from "../../Models";
 
 
 export interface PostData {
   title: string;
   description: string;
-  breed?: string;
+  breed: string;
   gender?: /*'male' | 'female';*/ string
   city: string;
-  name?: string; 
+  name: string; 
   age: number; 
   weight?: number; 
   height?: number;
   color?: string;
-  // image?: File;
+  imageUrl?: string;
 }
 
 export interface IDogInfo {
@@ -57,7 +57,10 @@ export interface IPostData {
 // }
 
 export default function AddPost() {
+
+  const [isOpen, setIsOpen] = useState(true);
   const [activeStep, setActiveStep] = useState(0);
+  const [file, setFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<PostData>({
     title: '',
     description: '',
@@ -69,19 +72,26 @@ export default function AddPost() {
     weight: 0,
     height: 0,
     color: '',
-    // image: undefined,
+    imageUrl: '',
   });
 
   const [showErrors, setShowErrors] = useState(false);
 
-  // const [breeds, setBreeds] = useState([]);
+  const [breedNames, setBreedNames] = useState<String[]>([]);
 
-  // useEffect(() => {
-  //   const fetchBreeds = async () => {
-  //       dddd
-  //   };
-  //   fetchBreeds();
-  // }, []);
+  useEffect(() => {
+    const fetchBreeds = async () => {
+        try {
+            const breeds = await getBreeds();
+            const breedNames = breeds?.map((breed) => breed.breedName)
+            breedNames && setBreedNames(breedNames);
+        } catch (error) {
+            console.error("Error fetching breeds:", error);
+        }
+    };
+
+    fetchBreeds();
+}, []);
 
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
@@ -89,12 +99,15 @@ export default function AddPost() {
       'image/png': ['.png'],
       'image/jpeg': ['.jpeg'],
     },
-    onDrop: (acceptedFiles) => {
-      setFormData({ ...formData, image: acceptedFiles[0] });
+    onDrop: (acceptedFiles: File[]) => {
+        setFile(acceptedFiles[0]);
+      
     },
+    multiple: false
   });
 
   const handleNext = () => {
+   
     setShowErrors(false)
     const currentStep = steps[activeStep];
     const requiredFields = currentStep.requiredFields || []; 
@@ -125,10 +138,20 @@ export default function AddPost() {
     addPost()
   };
 
+  const handleClose = () => {
+    setIsOpen(false);
+  }
+
   const addPost = async () => {
-    //TODO add Image Url!
-    // const url = await uploadPhoto(imgSrc!);
-    // console.log("upload returned:" + url);
+
+    try {
+
+      let imageUrl = null
+
+    if (file != null) {
+      imageUrl = await uploadPhoto(file!!);
+    }
+
     const dogInfoDetails: IDogInfo = {
         breed: formData.breed!!,
         gender: formData.gender!!,
@@ -137,7 +160,6 @@ export default function AddPost() {
         ...(formData.weight !== 0 && { weight: formData.weight }),
         ...(formData.height !== 0 && { height: formData.height }),
         ...(typeof formData.color === 'string' && formData.color !== '' && { color: formData.color }),
-        // image: formData.image
     }
 
     const post: IPostData = {
@@ -145,30 +167,53 @@ export default function AddPost() {
       description: formData.description,
       dogInfo: dogInfoDetails,
       ...(typeof formData.city === 'string' && formData.city !== '' && { city: formData.city }),
+      ...(imageUrl !== null && { imageUrl: imageUrl }),
     }
 
-    const res = await createPost(post)
-    console.log(res)
-    // onSubmit(formData);
-    console.log(res)
+    await createPost(post)
+    //TODO make sure that handleClose bring you back to Posts page
+    handleClose()
+
+    } catch (error) {
+
+      console.log("Failed to save post")
+  }
+
+
 }
+
+const handleAgeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = event.target;
+  try {
+
+    if (parseInt(value) > 0 && parseInt(value) < 40)
+    setFormData({ ...formData, [name]: value });
+  } catch (error) {
+
+    console.log("Age must be a number")
+  }
+  
+};
+
+
+const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: string) => {
+  setFormData({ ...formData, breed: newBreed });
+};
 
   const steps = [
     {
-      label: 'Let\'s get started with some technical info:',
+      label: 'Let\'s get started with some technical info',
       content: (
         <>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="breed"
-            label="Breed"
-            name="breed"
-            value={formData.breed}
-            error={formData.breed == '' && showErrors}
-            onChange={handleInputChange}
-          />
+           <Autocomplete
+              disablePortal
+              id="breed"
+              options={breedNames}
+              fullWidth
+              label="Breed"
+              onChange={handleBreedChange}
+              renderInput={(params) => <TextField {...params} id="breed" error={formData.breed === '' && showErrors} label="Breed*" variant="outlined" />}
+            />
           <TextField
             margin="normal"
             required
@@ -193,8 +238,8 @@ export default function AddPost() {
             name="age"
             type="number"
             value={formData.age}
-            error={(formData.age == undefined || formData.age == 0) && showErrors}
-            onChange={handleInputChange}
+            error={formData.age == undefined || formData.age <= 0 || formData.age >= 40}
+            onChange={handleAgeChange}
           />
           <TextField
             margin="normal"
@@ -203,6 +248,7 @@ export default function AddPost() {
             label="Weight (kg)"
             name="weight"
             type="number"
+            error={formData.weight == undefined || formData.weight < 0}
             value={formData.weight}
             onChange={handleInputChange}
           />
@@ -214,6 +260,7 @@ export default function AddPost() {
             name="height"
             type="number"
             value={formData.height}
+            error={formData.height == undefined || formData.height < 0}
             onChange={handleInputChange}
           />
           <TextField
@@ -223,6 +270,8 @@ export default function AddPost() {
             label="Color"
             name="color"
             value={formData.color}
+            helperText="2-30 characters"
+            error={formData.color?.length == 1}
             onChange={handleInputChange}
           />
           <TextField
@@ -232,9 +281,12 @@ export default function AddPost() {
             label="City"
             name="city"
             value={formData.city}
+            error={formData.city.length == 1}
+            helperText="At least 2 characters"
             onChange={handleInputChange}
           />
         </>
+        
       ),
       requiredFields: ['gender', 'breed', 'age'],
     },
@@ -251,7 +303,8 @@ export default function AddPost() {
             label="Dog's Name"
             name="name"
             value={formData.name}
-            error={formData.name == '' && showErrors}
+            error={(formData.name == '' && showErrors) || formData.name.length == 1 }
+            helperText="2-30 characters"
             onChange={handleInputChange}
           />
         <TextField
@@ -262,7 +315,8 @@ export default function AddPost() {
             label="Post Title"
             name="title"
             value={formData.title}
-            error={formData.title == '' && showErrors}
+            error={(formData.title == '' && showErrors) || formData.title.length == 1}
+            helperText="2-50 characters"
             onChange={handleInputChange}
           />
           <TextField
@@ -275,8 +329,9 @@ export default function AddPost() {
             id="description"
             label="describe your dog"
             name="description"
+            helperText="2-1000 characters"
             value={formData.description}
-            error={formData.description == '' && showErrors}
+            error={(formData.description == '' && showErrors) || formData.description.length ==1 || formData.description.length > 1000}
             onChange={handleInputChange}
           />
           
@@ -312,7 +367,7 @@ export default function AddPost() {
               <img
                 src={URL.createObjectURL(acceptedFiles[0])}
                 alt="Uploaded image"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={{ width: '100%', height: '100%', objectFit: 'fill' }}
               />
             )}
             <input {...getInputProps()} />
@@ -322,7 +377,7 @@ export default function AddPost() {
     },
   ]
         return (
-          <Modal open={true} aria-labelledby="modal-modal-title"
+          <Modal open={ isOpen } aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           sx={{
             display: 'flex',

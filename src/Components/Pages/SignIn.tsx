@@ -19,13 +19,13 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { googleSignin } from "../../services/user-services";
-import { loginUser, getUser } from "../../BackendClient";
+import useUserService from "../../services/user-services";
 import { useAuth } from "../../hooks/useAuth";
 import DogParkImage from "../../assets/dog_park.jpg";
 
 function SignIn() {
     const { setAuth } = useAuth();
+    const { loginUser, getUser, googleSignin } = useUserService();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -47,13 +47,15 @@ function SignIn() {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         // Make the login request
         const loginResponse = await loginUser(email, password);
         const accessToken = loginResponse?.accessToken;
+        console.log(accessToken);
         if (accessToken) {
+            console.log(accessToken);
             setAuth({ accessToken });
             const userResponse = await getUser();
             if (userResponse) {
@@ -65,7 +67,7 @@ function SignIn() {
         } else {
             console.log("Login failed");
         }
-    };
+    }
 
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
         console.log(credentialResponse);

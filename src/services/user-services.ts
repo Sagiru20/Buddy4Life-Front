@@ -1,5 +1,12 @@
+import axios, { AxiosRequestConfig } from "axios";
 import { CredentialResponse } from "@react-oauth/google";
-import apiClient from "./api-client";
+import { backendClient } from "./BackendClient";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+
+interface IAuthResponse {
+    accessToken: string;
+    refreshToken: string;
+}
 
 export interface IUser {
     email: string;
@@ -12,82 +19,105 @@ export interface IUser {
     refreshToken?: string;
 }
 
-export const registrUser = (user: IUser) => {
-    return new Promise<IUser>((resolve, reject) => {
-        console.log("Registering user...");
-        console.log(user);
-        apiClient
-            .post("/auth/register", user)
-            .then((response) => {
-                console.log(response);
-                resolve(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-                reject(error);
-            });
-    });
+export interface IGetUserResponse {
+    _id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    imageUrl?: string;
+}
+
+const backendConfig: AxiosRequestConfig = {
+    baseURL: "http://localhost:9000/",
 };
 
-export const loginUser = (user: IUser) => {
-    return new Promise<IUser>((resolve, reject) => {
-        console.log("User Login...");
-        console.log(user);
+function useUserService() {
+    const axiosPrivate = useAxiosPrivate();
 
-        apiClient
-            .post("/auth/login", user)
-            .then((response) => {
-                console.log(response);
-                console.log("token is" + JSON.stringify(response.data["accessToken"]));
-                resolve(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-                reject(error);
+    async function loginUser(email: string, password: string) {
+        try {
+            const { data }: { data: IAuthResponse } = await axios.post<IAuthResponse>(
+                "/auth/login",
+                { email, password },
+                backendConfig
+            );
+            return data;
+        } catch (error) {
+            console.error(`Error trying to login user with email ${email}: `, error);
+        }
+    }
+
+    async function refreshToken() {
+        try {
+            const { data } = await axiosPrivate.get<IAuthResponse>("/auth/refresh", {
+                withCredentials: true,
             });
-    });
-};
+            return data;
+        } catch (error) {
+            console.error("Error trying to refresh token", error);
+        }
+    }
 
-export const googleSignin = (credentialResponse: CredentialResponse) => {
-    return new Promise<IUser>((resolve, reject) => {
-        console.log("googleSignin ...");
-        apiClient
-            .post("/auth/google", credentialResponse)
-            .then((response) => {
-                console.log(response);
-                resolve(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-                reject(error);
-            });
-    });
-};
+    async function getUser(id: string = "me") {
+        try {
+            const { data }: { data: IGetUserResponse } = await axiosPrivate.get<IGetUserResponse>(
+                `/user/${id}`
+            );
+            return data;
+        } catch (error) {
+            console.error(`Error trying to get user with id ${id}: `, error);
+        }
+    }
 
-export const getCurrentUserInfo = (id: String) => {
-    return new Promise<IUser>((resolve, reject) => {
-      apiClient
-        .get(`/user/${id}`)
-        .then((response) => {
-          resolve(response.data as IUser);
-        })
-        .catch((error) => {
-          reject(error);
+    const registerUser = (user: IUser) => {
+        return new Promise<IUser>((resolve, reject) => {
+            console.log("Registering user...");
+            console.log(user);
+            backendClient
+                .post("/auth/register", user)
+                .then((response) => {
+                    console.log(response);
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
         });
-    });
-};
+    };
 
-export const updateUser = (user: IUser) => {
-    return new Promise<void>((resolve, reject) => {
-        console.log("id " + user._id);
-        apiClient
-            .put(`/user/${user._id}`, user)
-            .then(() => {
-                resolve();
-            })
-            .catch((error) => {
-                console.log(error);
-                reject(error);
-            });
-    });
-};
+    const googleSignin = (credentialResponse: CredentialResponse) => {
+        return new Promise<IUser>((resolve, reject) => {
+            console.log("googleSignin ...");
+            backendClient
+                .post("/auth/google", credentialResponse)
+                .then((response) => {
+                    console.log(response);
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        });
+    };
+
+    const updateUser = (user: IUser) => {
+        return new Promise<void>((resolve, reject) => {
+            console.log("id " + user._id);
+            backendClient
+                .put(`/user/${user._id}`, user)
+                .then(() => {
+                    resolve();
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        });
+    };
+
+    return { loginUser, refreshToken, getUser, registerUser, googleSignin, updateUser };
+}
+
+export default useUserService;

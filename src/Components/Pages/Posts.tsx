@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent, SyntheticEvent } from "react";
 import { IPost, IBreed, Gender, PostsOwnerShip } from "../../Models";
-import { getPosts } from "../../BackendClient";
+import usePostService from "../../services/posts-services";
 import { getBreeds } from "../../DogBreedApi";
 import PostCard from "../PostCard";
 import PostsOwnershipToggleButton from "../PostsTypeToggleButton";
@@ -10,6 +10,8 @@ import { useAuth } from "../../hooks/useAuth";
 
 function Posts() {
     const { auth } = useAuth();
+    const { getPosts } = usePostService();
+
     const [posts, setPosts] = useState<IPost[]>([]);
     const [breeds, setBreeds] = useState<IBreed[]>([]);
 

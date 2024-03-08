@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getPost } from "../../services/posts-services";
+import usePostService from "../../services/posts-services";
 
 import {
     Box,
@@ -19,6 +19,8 @@ import { IPost } from "../../Models";
 
 function Post() {
     const { id } = useParams<{ id: string }>();
+    const { getPost } = usePostService();
+
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);
 

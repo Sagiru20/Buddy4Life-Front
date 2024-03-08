@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent, SyntheticEvent } from "react";
 import { IPost, IBreed, Gender } from "../../Models";
-import { getPosts } from "../../BackendClient";
+import { getPosts } from "../../services/posts-services";
 import { getBreeds } from "../../DogBreedApi";
 import PostCard from "../PostCard";
 import PostsTypeToggleButton from "../PostsTypeToggleButton";

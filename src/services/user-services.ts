@@ -6,7 +6,7 @@ export interface IUser {
     password?: string,
     firstName?: string,
     lastName?: string,
-    imgUrl?: string,
+    imageUrl?: string,
     _id?: string,
     accessToken?: string,
     refreshToken?: string
@@ -58,10 +58,10 @@ export const googleSignin = (credentialResponse: CredentialResponse) => {
 }
 
 
-export const getCurrentUserInfo = (id: String) => {
+export const getCurrentUserInfo = () => {
     return new Promise<IUser>((resolve, reject) => {
       apiClient
-        .get(`/user/${id}`)
+        .get(`/user/current`)
         .then((response) => {
           resolve(response.data as IUser);
         })

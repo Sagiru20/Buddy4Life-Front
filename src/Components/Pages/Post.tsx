@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getPost } from "../../BackendClient";
+import { getPost } from "../../services/posts-services";
+
 import {
     Box,
     Card,

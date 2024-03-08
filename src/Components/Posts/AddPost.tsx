@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, SyntheticEvent, useRef  } from 'react';
+import { useState, useEffect, SyntheticEvent  } from 'react';
 import {
   Step,
   Stepper,
@@ -16,7 +16,6 @@ import { useDropzone } from 'react-dropzone'
 import { createPost } from "../../services/posts-services";
 import { uploadPhoto } from '../../services/file-services';
 import { getBreeds } from '../../DogBreedApi';
-import { IBreed } from "../../Models";
 
 
 export interface PostData {
@@ -56,9 +55,13 @@ export interface IPostData {
 //   onSubmit: (data: PostData) => void;
 // }
 
-export default function AddPost() {
+export interface UserProfileModalProps {
+  isOpen: boolean;
+  closeModal: () => void;
+}
 
-  const [isOpen, setIsOpen] = useState(true);
+export default function AddPost({ isOpen, closeModal }) {
+
   const [activeStep, setActiveStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<PostData>({
@@ -138,10 +141,6 @@ export default function AddPost() {
     addPost()
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-  }
-
   const addPost = async () => {
 
     try {
@@ -171,8 +170,8 @@ export default function AddPost() {
     }
 
     await createPost(post)
-    //TODO make sure that handleClose bring you back to Posts page
-    handleClose()
+
+    closeModal()
 
     } catch (error) {
 
@@ -377,7 +376,7 @@ const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: str
     },
   ]
         return (
-          <Modal open={ isOpen } aria-labelledby="modal-modal-title"
+          <Modal open={ isOpen } onClose={closeModal} aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           sx={{
             display: 'flex',

@@ -15,11 +15,11 @@ import { uploadPhoto } from '../../services/file-services';
 import { useDropzone } from 'react-dropzone'
 
 export interface UserProfileModalProps {
-    // isOpen: boolean;
-    // user: IUser;
+    isOpen: boolean;
+    closeModal: () => void;
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ }) => {
+const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal }) => {
 
   let initUser: IUser = {
     firstName: 'Loading...',
@@ -35,7 +35,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ }) => {
     const [editedLastName, setEditedLastName] = useState(user.lastName);
     const [editedEmail, setEditedEmail] = useState(user.email);
     const [isEditing, setIsEditing] = useState(false)
-    const [isOpen, setIsOpen] = useState(true);
 
     const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
       disabled: !isEditing,
@@ -64,16 +63,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ }) => {
       setEditedFirstName(currentUser.firstName); 
       setEditedLastName(currentUser.lastName)
       setEditedEmail(currentUser.email);
-      console.log(currentUser.imageUrl)
     };
 
   const enableEdit = () => {
     setIsEditing(true); 
   };
-
-  const handleClose = () => {
-    setIsOpen(false);
-  }
 
   const handleSave = async () => {
 
@@ -81,6 +75,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ }) => {
 
     if (file != null) {
       imageUrl = await uploadPhoto(file!!);
+    } else {
+      imageUrl = user.imageUrl
     }
     
 
@@ -100,7 +96,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ }) => {
   return (
     <Modal
       open={ isOpen }
-      onClose={handleClose}
+      onClose={closeModal}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -108,8 +104,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ }) => {
         <Typography id="modal-modal-title" variant="h6" component="h2">
           User Profile
         </Typography>
-        <IconButton aria-label="Delete" color="primary" sx={{ position: 'absolute', top: 8, right: 8 }}>
-          <CloseIcon onClick={handleClose}></CloseIcon>
+        <IconButton onClick={closeModal} aria-label="Delete" color="primary" sx={{ position: 'absolute', top: 8, right: 8 }}>
+          <CloseIcon></CloseIcon>
         </IconButton>
         <Box component="form" noValidate sx={{ mt: 1 }}>
 

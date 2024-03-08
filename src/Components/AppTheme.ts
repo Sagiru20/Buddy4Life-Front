@@ -1,11 +1,14 @@
 import { createTheme } from "@mui/material/styles";
-import { lightGreen, orange } from "@mui/material/colors";
+import { lightGreen, lightBlue } from "@mui/material/colors";
 
 export const appTheme = createTheme({
     palette: {
         mode: "light",
         primary: lightGreen,
-        secondary: orange,
+        secondary: lightBlue,
         contrastThreshold: 2,
+        background: {
+            default: "#E3F4F4",
+        },
     },
 });

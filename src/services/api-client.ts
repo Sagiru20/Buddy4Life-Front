@@ -2,7 +2,7 @@ import axios, { CanceledError } from "axios";
 
 export { CanceledError }
 const apiClient = axios.create({
-    baseURL: 'http://127.0.0.1:9000',
+    baseURL: 'http://localhost:9000',
     withCredentials: true,
 });
 

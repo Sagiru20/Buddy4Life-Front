@@ -3,7 +3,7 @@ import { Container, Stack } from "@mui/material";
 import Comment from "./Comment";
 import AddComment from "./AddComment";
 import { IComment, IPost } from "../Models";
-import { createComment, editComment, deleteComment } from "../BackendClient";
+import { createComment, editComment, deleteComment } from "../services/comments-service";
 
 interface Props {
     post: IPost;

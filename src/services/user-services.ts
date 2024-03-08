@@ -64,16 +64,16 @@ export const googleSignin = (credentialResponse: CredentialResponse) => {
     });
 };
 
-export const getCurrentUserInfo = (id: string) => {
+export const getCurrentUserInfo = (id: String) => {
     return new Promise<IUser>((resolve, reject) => {
-        apiClient
-            .get(`/user/${id}`)
-            .then((response) => {
-                resolve(response.data as IUser);
-            })
-            .catch((error) => {
-                reject(error);
-            });
+      apiClient
+        .get(`/user/${id}`)
+        .then((response) => {
+          resolve(response.data as IUser);
+        })
+        .catch((error) => {
+          reject(error);
+        });
     });
 };
 

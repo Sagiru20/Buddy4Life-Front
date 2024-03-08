@@ -70,8 +70,8 @@ function SignIn() {
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
         console.log(credentialResponse);
         try {
-            const res = await googleSignin(credentialResponse);
-            console.log(res);
+            await googleSignin(credentialResponse);
+            navigate("/posts");
         } catch (e) {
             console.log(e);
         }

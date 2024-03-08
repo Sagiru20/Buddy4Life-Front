@@ -5,6 +5,8 @@ import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { blue } from "@mui/material/colors";
+import AddPost from "./Posts/AddPost";
+import UserProfileModal from "./UserProfile/UserProfileModal";
 import {
     Typography,
     Tooltip,
@@ -78,8 +80,6 @@ function MyTabs() {
     );
 }
 
-const settings = ["Profile", "Logout"];
-
 function Navbar() {
     const { auth } = useAuth();
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -91,6 +91,10 @@ function Navbar() {
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
+    const [showAddPost, setShowAddPost] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
+
 
     return (
         <AppBar position="sticky">
@@ -122,9 +126,11 @@ function Navbar() {
                         variant="contained"
                         color="secondary"
                         startIcon={<AddCircleIcon />}
+                        onClick={() => setShowAddPost(true)}
                     >
                         New Post
                     </Button>
+                    <AddPost isOpen={showAddPost} closeModal={() => setShowAddPost(false)} />
                 </Box>
 
                 <Box>
@@ -164,11 +170,17 @@ function Navbar() {
                         open={Boolean(anchorElUser)}
                         onClose={handleCloseUserMenu}
                     >
-                        {settings.map((setting) => (
-                            <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                <Typography textAlign="center">{setting}</Typography>
-                            </MenuItem>
-                        ))}
+                        <MenuItem key="profile" onClick={handleCloseUserMenu}>
+                        <Typography  onClick={() => setShowProfile(true)} textAlign="center">Profile</Typography>
+                            {/* <Button
+                                key="profileButton"
+                                variant="contained"
+                                onClick={() => setShowProfile(true)}
+                            >
+                                Profile
+                            </Button> */}
+                            <UserProfileModal isOpen={showProfile} closeModal={() => setShowProfile(false)} />
+                        </MenuItem>
                     </Menu>
                 </Box>
             </Toolbar>

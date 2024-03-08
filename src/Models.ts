@@ -3,6 +3,11 @@ export enum Gender {
     FEMALE = "female",
 }
 
+export enum PostsOwnerShip {
+    ALL_POSTS = "All Posts",
+    MY_POSTS = "My Posts",
+}
+
 export interface IDogInfo {
     name: string;
     breed: string;
@@ -54,11 +59,14 @@ export interface IBreed {
     imgCreativeCommons?: boolean;
 }
 
-export interface ILoggedUser {
+interface IUserInfo {
     _id: string;
     email: string;
     firstName: string;
     lastName: string;
     imageUrl?: string;
+}
+export interface ILoggedUser {
     accessToken: string;
+    userInfo?: IUserInfo;
 }

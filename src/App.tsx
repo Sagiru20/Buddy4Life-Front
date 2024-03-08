@@ -19,22 +19,27 @@ const Layout = () => (
 
 function Routes() {
     const element = useRoutes([
-        { path: "/signin", element: <SignIn /> },
-        { path: "/register", element: <Register /> },
         {
-            element: <RequireAuth />,
+            path: "/",
+            element: <Outlet />,
             children: [
+                { path: "signin", element: <SignIn /> },
+                { path: "register", element: <Register /> },
                 {
-                    path: "/",
-                    element: <Layout />,
+                    element: <RequireAuth />,
                     children: [
                         {
-                            index: true,
-                            element: <Navigate to="posts" />,
+                            element: <Layout />,
+                            children: [
+                                {
+                                    index: true,
+                                    element: <Navigate to="posts" />,
+                                },
+                                { path: "posts", element: <Posts /> },
+                                { path: "posts/:id", element: <Post /> },
+                                { path: "breeds", element: <Breeds /> },
+                            ],
                         },
-                        { path: "posts", element: <Posts /> },
-                        { path: "posts/:id", element: <Post /> },
-                        { path: "breeds", element: <Breeds /> },
                     ],
                 },
             ],

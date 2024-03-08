@@ -6,13 +6,13 @@ import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthProvider.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-    <GoogleOAuthProvider clientId="831261820537-emrlpqfm1hu1fiacuokeufirhe0aupgm.apps.googleusercontent.com">
-        <React.StrictMode>
-            <BrowserRouter>
-                <AuthProvider>
+    <React.StrictMode>
+        <GoogleOAuthProvider clientId="831261820537-emrlpqfm1hu1fiacuokeufirhe0aupgm.apps.googleusercontent.com">
+            <AuthProvider>
+                <BrowserRouter>
                     <App />
-                </AuthProvider>
-            </BrowserRouter>
-        </React.StrictMode>
-    </GoogleOAuthProvider>
+                </BrowserRouter>
+            </AuthProvider>
+        </GoogleOAuthProvider>
+    </React.StrictMode>
 );

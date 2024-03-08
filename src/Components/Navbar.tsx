@@ -19,6 +19,7 @@ import {
     Avatar,
     AppBar,
 } from "@mui/material";
+import { useAuth } from "../hooks/useAuth";
 
 const tabsTheme = createTheme({
     palette: {
@@ -80,6 +81,7 @@ function MyTabs() {
 const settings = ["Profile", "Logout"];
 
 function Navbar() {
+    const { auth } = useAuth();
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
     const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
@@ -137,7 +139,7 @@ function Navbar() {
                             textDecoration: "none",
                         }}
                     >
-                        User Name
+                        {auth?.userInfo?.firstName + " " + auth?.userInfo?.lastName}
                     </Typography>
 
                     <Tooltip title="Open settings">

@@ -42,11 +42,36 @@ interface ILoginResponse {
     refreshToken: string;
 }
 
+interface IGetUserResponse {
+    _id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    imageUrl?: string;
+}
+
 export async function loginUser(email: string, password: string) {
     try {
-        return await axios.post<ILoginResponse>("/auth/login", { email, password }, backendConfig);
+        const { data }: { data: ILoginResponse } = await axios.post<ILoginResponse>(
+            "/auth/login",
+            { email, password },
+            backendConfig
+        );
+        return data;
     } catch (error) {
         console.error(`Error trying to login user with email ${email}: `, error);
+    }
+}
+
+export async function getUser(id: string = "me") {
+    try {
+        const { data }: { data: IGetUserResponse } = await axios.get<IGetUserResponse>(
+            `/user/${id}`,
+            backendConfig
+        );
+        return data;
+    } catch (error) {
+        console.error(`Error trying to get user with id ${id}: `, error);
     }
 }
 
@@ -59,7 +84,7 @@ export async function getPosts(queryParams: GetPostsQueryParams) {
 
     try {
         const { data } = await axios.get<IPostResponse[]>("/post", requestConfig);
-        return data;
+        return data.map((postResponse) => convertPost(postResponse));
     } catch (error) {
         console.error("Error fetching posts: ", error);
     }

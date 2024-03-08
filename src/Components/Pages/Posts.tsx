@@ -1,16 +1,19 @@
 import { useState, useEffect, ChangeEvent, SyntheticEvent } from "react";
-import { IPost, IBreed, Gender } from "../../Models";
+import { IPost, IBreed, Gender, PostsOwnerShip } from "../../Models";
 import { getPosts } from "../../BackendClient";
 import { getBreeds } from "../../DogBreedApi";
 import PostCard from "../PostCard";
-import PostsTypeToggleButton from "../PostsTypeToggleButton";
+import PostsOwnershipToggleButton from "../PostsTypeToggleButton";
 import SearchIcon from "@mui/icons-material/Search";
 import { Autocomplete, Box, Container, Divider, Grid, IconButton, TextField, Stack } from "@mui/material";
+import { useAuth } from "../../hooks/useAuth";
 
 function Posts() {
+    const { auth } = useAuth();
     const [posts, setPosts] = useState<IPost[]>([]);
     const [breeds, setBreeds] = useState<IBreed[]>([]);
 
+    const [ownership, setOwnership] = useState<PostsOwnerShip>(PostsOwnerShip.ALL_POSTS);
     const [gender, setGender] = useState<Gender | null>(null);
     const [breed, setBreed] = useState<string | null>(null);
     const [city, setCity] = useState<string>("");
@@ -29,7 +32,11 @@ function Posts() {
 
     const fetchPosts = async () => {
         try {
-            const posts = await getPosts({ gender: gender, breed: breed, city: city });
+            const queryParams =
+                ownership === PostsOwnerShip.ALL_POSTS
+                    ? { gender, breed, city }
+                    : { ownerId: auth?.userInfo?._id, gender, breed, city };
+            const posts = await getPosts(queryParams);
             posts && setPosts(posts);
         } catch (error) {
             console.error("Error fetching posts:", error);
@@ -38,7 +45,7 @@ function Posts() {
 
     useEffect(() => {
         fetchPosts();
-    }, []);
+    }, [ownership]);
 
     useEffect(() => {
         const fetchBreeds = async () => {
@@ -64,7 +71,7 @@ function Posts() {
             }}
         >
             <Box display="flex" marginBottom={5}>
-                <PostsTypeToggleButton />
+                <PostsOwnershipToggleButton ownership={ownership} setOwnership={setOwnership} />
             </Box>
 
             <Stack direction="row" spacing={8} justifyContent="center" sx={{ mb: 5, width: "100%" }}>

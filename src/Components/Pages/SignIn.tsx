@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useState } from "react";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -20,7 +20,7 @@ import {
     Typography,
 } from "@mui/material";
 import { googleSignin } from "../../services/user-services";
-import { loginUser } from "../../BackendClient";
+import { loginUser, getUser } from "../../BackendClient";
 import { useAuth } from "../../hooks/useAuth";
 import DogParkImage from "../../assets/dog_park.jpg";
 
@@ -49,11 +49,22 @@ function SignIn() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const response = await loginUser(email, password);
-        setAuth({ response._id, user, pwd, roles, accessToken });
-        setEmail("");
-        setPassword("");
-        navigate(from, { replace: true });
+
+        // Make the login request
+        const loginResponse = await loginUser(email, password);
+        const accessToken = loginResponse?.accessToken;
+        if (accessToken) {
+            setAuth({ accessToken });
+            const userResponse = await getUser();
+            if (userResponse) {
+                setAuth({ userInfo: userResponse, accessToken });
+                setEmail("");
+                setPassword("");
+                navigate(from, { replace: true });
+            }
+        } else {
+            console.log("Login failed");
+        }
     };
 
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
@@ -113,7 +124,7 @@ function SignIn() {
                         </Grid>
 
                         <Grid item>
-                            <Link href="/register" variant="body2" color={blue[500]}>
+                            <Link component={RouterLink} to="/register" variant="body1" color={blue[500]}>
                                 Sign Up
                             </Link>
                         </Grid>

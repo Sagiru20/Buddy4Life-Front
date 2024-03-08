@@ -3,12 +3,12 @@ import { createContext } from "react";
 import { ILoggedUser } from "../Models";
 
 const AuthContext = createContext<{
-    auth: ILoggedUser;
-    setAuth: React.Dispatch<React.SetStateAction<ILoggedUser>>;
-} | null>(null);
+    auth: ILoggedUser | undefined;
+    setAuth: React.Dispatch<React.SetStateAction<ILoggedUser | undefined>>;
+}>({ auth: undefined, setAuth: () => {} });
 
 export function AuthProvider({ children }: PropsWithChildren) {
-    const [auth, setAuth] = useState<ILoggedUser>({});
+    const [auth, setAuth] = useState<ILoggedUser | undefined>();
 
     return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
 }

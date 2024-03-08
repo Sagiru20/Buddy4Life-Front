@@ -1,5 +1,5 @@
 import { useState, useEffect, MouseEvent } from "react";
-import { Link as RouterLink, matchPath, useLocation } from "react-router-dom";
+import { Link, matchPath, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
@@ -68,7 +68,7 @@ function MyTabs() {
                         label={page}
                         value={pagesPaths[index]}
                         to={pagesPaths[index]}
-                        component={RouterLink}
+                        component={Link}
                         sx={{ color: "white", fontWeight: "bold" }}
                     />
                 ))}
@@ -99,7 +99,7 @@ function Navbar() {
                     <Typography
                         variant="h5"
                         noWrap
-                        component={RouterLink}
+                        component={Link}
                         to={"/posts"}
                         sx={{
                             mr: 2,

@@ -4,8 +4,9 @@ import { Gender, IComment, IDogInfo, IPost } from "./Models";
 const backendConfig: AxiosRequestConfig = {
     baseURL: "http://localhost:9000/",
     headers: {
-        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWQwZTFhMzZjY2EyYjk5ZGNjODY3NGUiLCJpYXQiOjE3MDk3Mjk2MTAsImV4cCI6MTcxMDkzOTIxMH0.ZrSbFyKG2mjHBA4EiO15tcC7WKPy_p1KDF16PQ0VGQ0`,
+        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWQwZTFhMzZjY2EyYjk5ZGNjODY3NGUiLCJpYXQiOjE3MDk4OTc3ODEsImV4cCI6MTcxMTEwNzM4MX0.EXYb-azLIN1a27Gx7TgWn5cYMRW4s-zEwMqi91EPmFs`,
     },
+    withCredentials: true,
 };
 
 interface GetPostsQueryParams {
@@ -15,7 +16,7 @@ interface GetPostsQueryParams {
     city: string | null;
 }
 
-export interface ICommentResponse {
+interface ICommentResponse {
     _id: string;
     authorId: string;
     text: string;
@@ -23,7 +24,7 @@ export interface ICommentResponse {
     updatedAt: string;
 }
 
-export interface IPostResponse {
+interface IPostResponse {
     _id: string;
     title: string;
     ownerId: string;
@@ -34,6 +35,19 @@ export interface IPostResponse {
     comments: ICommentResponse[];
     createdAt: string;
     updatedAt: string;
+}
+
+interface ILoginResponse {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export async function loginUser(email: string, password: string) {
+    try {
+        return await axios.post<ILoginResponse>("/auth/login", { email, password }, backendConfig);
+    } catch (error) {
+        console.error(`Error trying to login user with email ${email}: `, error);
+    }
 }
 
 export async function getPosts(queryParams: GetPostsQueryParams) {

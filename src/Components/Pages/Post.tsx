@@ -17,7 +17,7 @@ import CommentSection from "../CommentSection";
 import { IPost } from "../../Models";
 
 function Post() {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);
 

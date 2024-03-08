@@ -53,3 +53,12 @@ export interface IBreed {
     imgAttribution?: string;
     imgCreativeCommons?: boolean;
 }
+
+export interface ILoggedUser {
+    _id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    imageUrl?: string;
+    accessToken: string;
+}

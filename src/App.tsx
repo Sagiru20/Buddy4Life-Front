@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { appTheme } from "./Components/AppTheme";
+import PersistLogin from "./Components/PersistLogin";
 import RequireAuth from "./Components/RequireAuth";
 import SignIn from "./Components/Pages/SignIn";
 import Register from "./Components/Pages/Register";
@@ -26,18 +27,23 @@ function Routes() {
                 { path: "signin", element: <SignIn /> },
                 { path: "register", element: <Register /> },
                 {
-                    element: <RequireAuth />,
+                    element: <PersistLogin />,
                     children: [
                         {
-                            element: <Layout />,
+                            element: <RequireAuth />,
                             children: [
                                 {
-                                    index: true,
-                                    element: <Navigate to="posts" />,
+                                    element: <Layout />,
+                                    children: [
+                                        {
+                                            index: true,
+                                            element: <Navigate to="posts" />,
+                                        },
+                                        { path: "posts", element: <Posts /> },
+                                        { path: "posts/:id", element: <Post /> },
+                                        { path: "breeds", element: <Breeds /> },
+                                    ],
                                 },
-                                { path: "posts", element: <Posts /> },
-                                { path: "posts/:id", element: <Post /> },
-                                { path: "breeds", element: <Breeds /> },
                             ],
                         },
                     ],

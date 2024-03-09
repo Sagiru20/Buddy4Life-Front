@@ -13,9 +13,9 @@ const useRefreshToken = () => {
 
             if (data !== undefined) {
                 setAuth((prev) => {
-                    return { ...prev, accessToken: data?.accessToken };
+                    return { ...prev, accessToken: data.accessToken };
                 });
-                return data?.accessToken;
+                return data.accessToken;
             }
         } catch (error) {
             console.error("Error trying to refresh token", error);

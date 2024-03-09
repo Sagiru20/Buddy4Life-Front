@@ -1,5 +1,5 @@
 import { useState, useEffect, MouseEvent } from "react";
-import { Link, matchPath, useLocation } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
@@ -22,6 +22,7 @@ import {
     AppBar,
 } from "@mui/material";
 import useAuth from "../hooks/useAuth";
+import useLogout from "../hooks/useLogout";
 
 const tabsTheme = createTheme({
     palette: {
@@ -82,6 +83,8 @@ function MyTabs() {
 
 function Navbar() {
     const { auth } = useAuth();
+    const logout = useLogout();
+    const navigate = useNavigate();
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
     const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
@@ -90,6 +93,11 @@ function Navbar() {
 
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
+    };
+
+    const signOut = async () => {
+        await logout();
+        navigate("/signin");
     };
 
     const [showAddPost, setShowAddPost] = useState(false);
@@ -173,14 +181,13 @@ function Navbar() {
                             <Typography onClick={() => setShowProfile(true)} textAlign="center">
                                 Profile
                             </Typography>
-                            {/* <Button
-                                key="profileButton"
-                                variant="contained"
-                                onClick={() => setShowProfile(true)}
-                            >
-                                Profile
-                            </Button> */}
                             <UserProfileModal isOpen={showProfile} closeModal={() => setShowProfile(false)} />
+                        </MenuItem>
+
+                        <MenuItem key="logout" onClick={handleCloseUserMenu}>
+                            <Typography onClick={signOut} textAlign="center">
+                                Logout
+                            </Typography>
                         </MenuItem>
                     </Menu>
                 </Box>

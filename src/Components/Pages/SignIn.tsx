@@ -8,9 +8,11 @@ import {
     Avatar,
     Box,
     Button,
+    Checkbox,
     CssBaseline,
     Divider,
     FormControl,
+    FormControlLabel,
     IconButton,
     InputAdornment,
     Grid,
@@ -25,7 +27,7 @@ import useUserService from "../../services/user-services";
 import DogParkImage from "../../assets/dog_park.jpg";
 
 function SignIn() {
-    const { auth, setAuth } = useAuth();
+    const { auth, setAuth, persist, setPersist } = useAuth();
     const backendPrivateClient = useAxiosPrivate();
     const { loginUser, getUser, googleSignin } = useUserService(backendPrivateClient);
 
@@ -49,6 +51,14 @@ function SignIn() {
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
     };
+
+    const togglePersist = () => {
+        setPersist((prev) => !prev);
+    };
+
+    useEffect(() => {
+        localStorage.setItem("persist", JSON.stringify(persist));
+    }, [persist]);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -173,7 +183,19 @@ function SignIn() {
                                 />
                             </FormControl>
 
-                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        value="remember"
+                                        color="primary"
+                                        checked={persist}
+                                        onChange={togglePersist}
+                                    />
+                                }
+                                label="Remember me"
+                            />
+
+                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 2 }}>
                                 Sign in
                             </Button>
                         </form>

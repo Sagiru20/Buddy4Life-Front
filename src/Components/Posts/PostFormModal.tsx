@@ -35,13 +35,13 @@ export interface PostData {
   imageUrl?: string;
 }
 
-export interface AddPostProps {
+export interface PostFormModalProps {
   isOpen: boolean;
   closeModal: () => void;
   postId?: string;
 }
 
-export default function AddPost({ isOpen, closeModal, postId }: AddPostProps) {
+export default function PostFormModal({ isOpen, closeModal, postId }: PostFormModalProps) {
 
   const [activeStep, setActiveStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);

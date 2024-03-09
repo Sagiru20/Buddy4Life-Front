@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPost } from "../../services/posts-services";
 import EditButton from "../Reusable/Buttons/TextButtons/EditButton";
-import AddPost from "../Posts/AddPost";
+import PostFormModal from "../Posts/PostFormModal";
 
 
 import {
@@ -24,10 +24,11 @@ function Post() {
     const { id } = useParams();
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);
-    const [showAddPost, setShowAddPost] = useState(false);
+    const [showPostFormModal, setShowPostFormModal] = useState(false);
     const [isPostChanged, setIsPostChanged] = useState(false);
 
     useEffect(() => {
+        console.log("called: " + isPostChanged)
         const fetchPost = async () => {
             try {
                 const post = await getPost(id!);
@@ -36,12 +37,11 @@ function Post() {
                 console.error("Error fetching posts:", error);
             } finally {
                 setLoading(false);
-                setIsPostChanged(false)
             }
         };
 
         fetchPost();
-    }, [id, isPostChanged, post]);
+    }, [id, isPostChanged]);
 
     if (loading) {
         return (
@@ -57,8 +57,8 @@ function Post() {
     }
 
     const renderPostData = () => {
-        setShowAddPost(false)
-        setIsPostChanged(true);
+        setShowPostFormModal(false)
+        setIsPostChanged(!isPostChanged)
         setLoading(true)
       };
       
@@ -106,10 +106,10 @@ function Post() {
                                 </Typography>
 
                                 <EditButton
-                                            functionality={() => setShowAddPost(true)}
+                                            functionality={() => setShowPostFormModal(true)}
                                             editingComm={false}
                                         />
-                                <AddPost isOpen={showAddPost} postId={id} closeModal={renderPostData}/>
+                                <PostFormModal isOpen={showPostFormModal} postId={id} closeModal={renderPostData}/>
 
                                 <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                                     {/* TODO: Call backend to get owner name */}

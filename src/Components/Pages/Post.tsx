@@ -1,9 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getPost } from "../../services/posts-services";
 import EditButton from "../Reusable/Buttons/TextButtons/EditButton";
 import PostFormModal from "../Posts/PostFormModal";
 
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import usePostService from "../../services/posts-services";
 
 import {
     Box,
@@ -21,7 +22,10 @@ import CommentSection from "../CommentSection";
 import { IPost } from "../../Models";
 
 function Post() {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
+    const backendPrivateClient = useAxiosPrivate();
+    const { getPost } = usePostService(backendPrivateClient);
+
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);
     const [showPostFormModal, setShowPostFormModal] = useState(false);

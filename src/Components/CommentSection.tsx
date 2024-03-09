@@ -3,13 +3,17 @@ import { Container, Stack } from "@mui/material";
 import Comment from "./Comment";
 import AddComment from "./AddComment";
 import { IComment, IPost } from "../Models";
-import { createComment, editComment, deleteComment } from "../services/comments-service";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useCommentService from "../services/comments-service";
 
 interface Props {
     post: IPost;
 }
 
 function CommentSection({ post }: Props) {
+    const backendPrivateClient = useAxiosPrivate();
+    const { createComment, editComment, deleteComment } = useCommentService(backendPrivateClient);
+
     const [comments, setComments] = useState<IComment[]>([]);
 
     const addComment = async (text: string) => {

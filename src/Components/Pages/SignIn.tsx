@@ -1,56 +1,44 @@
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import { FormControl, InputAdornment, IconButton } from "@mui/material";
-import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import Divider from "@mui/material/Divider";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import DogParkImage from "../../assets/dog_park.jpg";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { blue, red } from "@mui/material/colors";
-import { appTheme } from "../AppTheme";
-import { IUser, loginUser, googleSignin } from "../../services/user-services";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
-
-declare module "@mui/material/styles" {
-    interface Palette {
-        googleRed: Palette["primary"];
-    }
-
-    interface PaletteOptions {
-        googleRed?: PaletteOptions["primary"];
-    }
-}
-
-declare module "@mui/material/Button" {
-    interface ButtonPropsColorOverrides {
-        googleRed: true;
-    }
-}
-
-const signInTheme = createTheme(appTheme, {
-    palette: {
-        googleRed: appTheme.palette.augmentColor({
-            color: red,
-            name: "googleRed",
-        }),
-    },
-});
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { blue } from "@mui/material/colors";
+import {
+    Avatar,
+    Box,
+    Button,
+    Checkbox,
+    CssBaseline,
+    Divider,
+    FormControl,
+    FormControlLabel,
+    IconButton,
+    InputAdornment,
+    Grid,
+    Link,
+    Paper,
+    TextField,
+    Typography,
+} from "@mui/material";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
+import useUserService from "../../services/user-services";
+import DogParkImage from "../../assets/dog_park.jpg";
 
 function SignIn() {
-    const navigate = useNavigate();
+    const { auth, setAuth, persist, setPersist } = useAuth();
+    const backendPrivateClient = useAxiosPrivate();
+    const { loginUser, getUser, googleSignin } = useUserService(backendPrivateClient);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/posts";
+
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [isUserLogged, setIsUserLogged] = useState<boolean>(false);
 
     const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(event.target.value);
@@ -64,27 +52,41 @@ function SignIn() {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const togglePersist = () => {
+        setPersist((prev) => !prev);
+    };
+
+    useEffect(() => {
+        localStorage.setItem("persist", JSON.stringify(persist));
+    }, [persist]);
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        signInUser();
-    };
-
-    const signInUser = async () => {
-        const user: IUser = {
-            email: email,
-            password: password,
-        };
-
-        try {
-            await loginUser(user);
-            navigate("/posts");
-        } catch (error) {
-            console.log("login failed: " + error);
+        const loginResponse = await loginUser(email, password);
+        const accessToken = loginResponse?.accessToken;
+        if (accessToken) {
+            setAuth({ ...auth, accessToken });
+            setIsUserLogged(true);
+        } else {
+            console.log("Login failed");
         }
-    };
+    }
+
+    useEffect(() => {
+        async function getUserDetails() {
+            const userResponse = await getUser();
+            if (userResponse) {
+                setAuth({ ...auth, userInfo: userResponse });
+                setEmail("");
+                setPassword("");
+                navigate(from, { replace: true });
+            }
+        }
+
+        if (isUserLogged) getUserDetails();
+    }, [isUserLogged]);
 
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
-        console.log(credentialResponse);
         try {
             await googleSignin(credentialResponse);
             navigate("/posts");
@@ -98,115 +100,117 @@ function SignIn() {
     };
 
     return (
-        <ThemeProvider theme={signInTheme}>
-            <Grid container component="main" sx={{ height: "100vh" }}>
-                <CssBaseline />
-                <Grid
-                    item
-                    xs={false}
-                    sm={4}
-                    md={7}
+        <Grid container component="main" sx={{ height: "100vh" }}>
+            <CssBaseline />
+
+            <Grid
+                item
+                xs={false}
+                sm={4}
+                md={7}
+                sx={{
+                    backgroundImage: `url(${DogParkImage})`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundColor: (t) =>
+                        t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
+                    backgroundSize: "cover",
+                    backgroundPosition: "left",
+                }}
+            />
+
+            <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                <Box
                     sx={{
-                        backgroundImage: `url(${DogParkImage})`,
-                        backgroundRepeat: "no-repeat",
-                        backgroundColor: (t) =>
-                            t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
-                        backgroundSize: "cover",
-                        backgroundPosition: "left",
+                        my: 8,
+                        mx: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
                     }}
-                />
-                <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-                    <Box
-                        sx={{
-                            my: 8,
-                            mx: 4,
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Avatar sx={{ m: 1, bgcolor: "secondary.light" }}>
-                            <LockOutlinedIcon />
-                        </Avatar>
+                >
+                    <Avatar sx={{ m: 1, bgcolor: "secondary.light" }}>
+                        <LockOutlinedIcon />
+                    </Avatar>
 
-                        <Typography component="h1" variant="h5">
-                            Sign in to Buddy4Life
-                        </Typography>
+                    <Typography component="h1" variant="h5">
+                        Sign in to Buddy4Life
+                    </Typography>
 
-                        <Grid container justifyContent="center" spacing={1}>
-                            <Grid item>
-                                <span>Don't have an account?</span>
-                            </Grid>
-
-                            <Grid item>
-                                <Link href="/register" variant="body2" color={blue[500]}>
-                                    Sign Up
-                                </Link>
-                            </Grid>
+                    <Grid container justifyContent="center" spacing={1}>
+                        <Grid item>
+                            <span>Don't have an account?</span>
                         </Grid>
 
-                        <Box sx={{ mt: 1 }}>
-                            <form onSubmit={handleSubmit}>
-                                <FormControl fullWidth margin="normal">
-                                    <TextField
-                                        label="Email"
-                                        value={email}
-                                        onChange={handleEmailChange}
-                                        required
-                                        type="email"
-                                        helperText="Enter a valid email address"
-                                        error={!email.match(/^[^@]+@[^@]+\.[^@]+$/) && email !== ""}
-                                    />
-                                </FormControl>
-
-                                <FormControl fullWidth margin="normal">
-                                    <TextField
-                                        label="Password"
-                                        value={password}
-                                        onChange={handlePasswordChange}
-                                        required
-                                        type={showPassword ? "text" : "password"}
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton onClick={handleClickShowPassword}>
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        helperText="Password must be at least 6 characters long"
-                                        error={password.length < 6 && password !== ""}
-                                    />
-                                </FormControl>
-
-                                <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                                    Sign in
-                                </Button>
-                            </form>
-                        </Box>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link
-                                    href="#"
-                                    variant="body1"
-                                    color={blue[400]}
-                                    style={{ fontSize: "14px", fontWeight: "bold", textDecoration: "none" }}
-                                >
-                                    Forgot password?
-                                </Link>
-                            </Grid>
+                        <Grid item>
+                            <Link component={RouterLink} to="/register" variant="body1" color={blue[500]}>
+                                Sign Up
+                            </Link>
                         </Grid>
+                    </Grid>
 
-                        <Divider>OR</Divider>
+                    <Box sx={{ mt: 1 }}>
+                        <form onSubmit={handleSubmit}>
+                            <FormControl fullWidth margin="normal">
+                                <TextField
+                                    label="Email"
+                                    value={email}
+                                    onChange={handleEmailChange}
+                                    required
+                                    type="email"
+                                    helperText="Enter a valid email address"
+                                    error={!email.match(/^[^@]+@[^@]+\.[^@]+$/) && email !== ""}
+                                />
+                            </FormControl>
 
-                        <Box sx={{ mt: 3 }}>
+                            <FormControl fullWidth margin="normal">
+                                <TextField
+                                    label="Password"
+                                    value={password}
+                                    onChange={handlePasswordChange}
+                                    required
+                                    type={showPassword ? "text" : "password"}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={handleClickShowPassword}>
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    helperText="Password must be at least 6 characters long"
+                                    error={password.length < 6 && password !== ""}
+                                />
+                            </FormControl>
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        value="remember"
+                                        color="primary"
+                                        checked={persist}
+                                        onChange={togglePersist}
+                                    />
+                                }
+                                label="Remember me"
+                            />
+
+                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 2 }}>
+                                Sign in
+                            </Button>
+                        </form>
+
+                        <Divider orientation="horizontal" flexItem>
+                            OR
+                        </Divider>
+
+                        <Box display="flex" sx={{ mt: 1 }} justifyContent="center">
                             <GoogleLogin onSuccess={onGoogleLoginSuccess} onError={onGoogleLoginFailure} />
                         </Box>
                     </Box>
-                </Grid>
+                </Box>
             </Grid>
-        </ThemeProvider>
+        </Grid>
     );
 }
 

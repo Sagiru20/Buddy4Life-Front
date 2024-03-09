@@ -1,5 +1,5 @@
 import { useState, useEffect, MouseEvent } from "react";
-import { Link as RouterLink, matchPath, useLocation } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
@@ -21,6 +21,8 @@ import {
     Avatar,
     AppBar,
 } from "@mui/material";
+import useAuth from "../hooks/useAuth";
+import useLogout from "../hooks/useLogout";
 
 const tabsTheme = createTheme({
     palette: {
@@ -70,7 +72,7 @@ function MyTabs() {
                         label={page}
                         value={pagesPaths[index]}
                         to={pagesPaths[index]}
-                        component={RouterLink}
+                        component={Link}
                         sx={{ color: "white", fontWeight: "bold" }}
                     />
                 ))}
@@ -80,6 +82,9 @@ function MyTabs() {
 }
 
 function Navbar() {
+    const { auth } = useAuth();
+    const logout = useLogout();
+    const navigate = useNavigate();
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
     const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
@@ -90,9 +95,13 @@ function Navbar() {
         setAnchorElUser(null);
     };
 
+    const signOut = async () => {
+        await logout();
+        navigate("/signin");
+    };
+
     const [showPostFormModal, setShowPostFormModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-
 
     return (
         <AppBar position="sticky">
@@ -103,7 +112,7 @@ function Navbar() {
                     <Typography
                         variant="h5"
                         noWrap
-                        component={RouterLink}
+                        component={Link}
                         to={"/posts"}
                         sx={{
                             mr: 2,
@@ -128,7 +137,10 @@ function Navbar() {
                     >
                         New Post
                     </Button>
-                    <PostFormModal isOpen={showPostFormModal} closeModal={() => setShowPostFormModal(false)} />
+                    <PostFormModal
+                        isOpen={showPostFormModal}
+                        closeModal={() => setShowPostFormModal(false)}
+                    />
                 </Box>
 
                 <Box>
@@ -143,7 +155,7 @@ function Navbar() {
                             textDecoration: "none",
                         }}
                     >
-                        User Name
+                        {auth?.userInfo?.firstName + " " + auth?.userInfo?.lastName}
                     </Typography>
 
                     <Tooltip title="Open settings">
@@ -169,15 +181,16 @@ function Navbar() {
                         onClose={handleCloseUserMenu}
                     >
                         <MenuItem key="profile" onClick={handleCloseUserMenu}>
-                        <Typography  onClick={() => setShowProfile(true)} textAlign="center">Profile</Typography>
-                            {/* <Button
-                                key="profileButton"
-                                variant="contained"
-                                onClick={() => setShowProfile(true)}
-                            >
+                            <Typography onClick={() => setShowProfile(true)} textAlign="center">
                                 Profile
-                            </Button> */}
+                            </Typography>
                             <UserProfileModal isOpen={showProfile} closeModal={() => setShowProfile(false)} />
+                        </MenuItem>
+
+                        <MenuItem key="logout" onClick={handleCloseUserMenu}>
+                            <Typography onClick={signOut} textAlign="center">
+                                Logout
+                            </Typography>
                         </MenuItem>
                     </Menu>
                 </Box>

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { backendClient } from "../services/BackendClient";
 import useAuth from "./useAuth";
 import { IAuthResponse } from "../services/user-services";
 
@@ -7,10 +7,9 @@ const useRefreshToken = () => {
 
     const refresh = async () => {
         try {
-            const { data } = await axios.get<IAuthResponse>("/auth/refresh", {
+            const { data } = await backendClient.get<IAuthResponse>("/auth/refresh", {
                 withCredentials: true,
             });
-            console.log("in refresh  ", data);
 
             if (data !== undefined) {
                 setAuth((prev) => {

@@ -86,7 +86,7 @@ function useUserService(axiosPrivate: AxiosInstance) {
     const updateUser = (user: IUser) => {
         return new Promise<void>((resolve, reject) => {
             console.log("id " + user._id);
-            backendClient
+            axiosPrivate
                 .put(`/user/${user._id}`, user)
                 .then(() => {
                     resolve();

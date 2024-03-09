@@ -3,18 +3,19 @@ import useAuth from "./useAuth";
 import { IAuthResponse } from "../services/user-services";
 
 const useRefreshToken = () => {
-    const { setAuth } = useAuth();
+    const { auth, setAuth } = useAuth();
 
     const refresh = async () => {
         try {
-            const { data } = await backendClient.get<IAuthResponse>("/auth/refresh", {
-                withCredentials: true,
-            });
+            console.log(auth);
+            const { data } = await backendClient.get<IAuthResponse>("/auth/refresh");
 
-            if (data !== undefined) {
-                setAuth((prev) => {
+            if (data) {
+                console.log(data);
+                await setAuth((prev) => {
                     return { ...prev, accessToken: data.accessToken };
                 });
+                console.log(auth);
                 return data.accessToken;
             }
         } catch (error) {

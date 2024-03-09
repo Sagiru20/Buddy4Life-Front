@@ -5,7 +5,7 @@ import { createTheme } from "@mui/material/styles";
 import PetsIcon from "@mui/icons-material/Pets";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { blue } from "@mui/material/colors";
-import AddPost from "./Posts/AddPost";
+import PostFormModal from "./Posts/PostFormModal";
 import UserProfileModal from "./UserProfile/UserProfileModal";
 import {
     Typography,
@@ -90,7 +90,7 @@ function Navbar() {
         setAnchorElUser(null);
     };
 
-    const [showAddPost, setShowAddPost] = useState(false);
+    const [showPostFormModal, setShowPostFormModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
 
 
@@ -124,11 +124,11 @@ function Navbar() {
                         variant="contained"
                         color="secondary"
                         startIcon={<AddCircleIcon />}
-                        onClick={() => setShowAddPost(true)}
+                        onClick={() => setShowPostFormModal(true)}
                     >
                         New Post
                     </Button>
-                    <AddPost isOpen={showAddPost} closeModal={() => setShowAddPost(false)} />
+                    <PostFormModal isOpen={showPostFormModal} closeModal={() => setShowPostFormModal(false)} />
                 </Box>
 
                 <Box>

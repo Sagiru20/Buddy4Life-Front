@@ -10,19 +10,22 @@ import {
   MenuItem,
   Box,
   Modal,
-  Autocomplete
+  Autocomplete,
+  IconButton
 } from '@mui/material';
-import { useDropzone } from 'react-dropzone'
-import { createPost } from "../../services/posts-services";
+import CloseIcon from '@mui/icons-material/Close';
+import { useDropzone } from 'react-dropzone';
+import { createPost, getPost, editPost } from "../../services/posts-services";
 import { uploadPhoto } from '../../services/file-services';
 import { getBreeds } from '../../DogBreedApi';
+import { IDogInfo, IPostCreationData, Gender } from '../../Models';
 
 
 export interface PostData {
   title: string;
   description: string;
   breed: string;
-  gender?: /*'male' | 'female';*/ string
+  gender?: /*'male' | 'female';*/ Gender
   city: string;
   name: string; 
   age: number; 
@@ -32,35 +35,13 @@ export interface PostData {
   imageUrl?: string;
 }
 
-export interface IDogInfo {
-  name: string;
-  breed: string;
-  //TODO change to Gender
-  gender: string;
-  age: number;
-  weight?: number;
-  height?: number;
-  color?: string;
-}
-
-export interface IPostData {
-  title: string;
-  description: string;
-  dogInfo: IDogInfo;
-  city?: string;
-  imageUrl?: string;
-}
-
-// interface AddPostProps {
-//   onSubmit: (data: PostData) => void;
-// }
-
-export interface UserProfileModalProps {
+export interface PostFormModalProps {
   isOpen: boolean;
   closeModal: () => void;
+  postId?: string;
 }
 
-export default function AddPost({ isOpen, closeModal }) {
+export default function PostFormModal({ isOpen, closeModal, postId }: PostFormModalProps) {
 
   const [activeStep, setActiveStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
@@ -69,7 +50,7 @@ export default function AddPost({ isOpen, closeModal }) {
     description: '',
     city: '',
     breed: '',
-    gender: '',
+    gender: Gender.MALE,
     name: '',
     age: 0 ,
     weight: 0,
@@ -81,6 +62,8 @@ export default function AddPost({ isOpen, closeModal }) {
   const [showErrors, setShowErrors] = useState(false);
 
   const [breedNames, setBreedNames] = useState<String[]>([]);
+
+  const finalButtonText = postId ? "Update Post" : "Create Post"
 
   useEffect(() => {
     const fetchBreeds = async () => {
@@ -94,6 +77,34 @@ export default function AddPost({ isOpen, closeModal }) {
     };
 
     fetchBreeds();
+}, []);
+
+useEffect(() => {
+  const initializeExistingPostInfo = async () => {
+      try {
+          const post = await getPost(postId!!);
+          setFormData({
+            title: post?.title || '',
+            description: post?.description ||'',
+            city: post?.city || '',
+            breed: post?.dogInfo?.breed || '',
+            gender: post?.dogInfo?.gender || Gender.MALE,
+            name: post?.dogInfo?.name || '',
+            age: post?.dogInfo?.age || 0 ,
+            weight: post?.dogInfo?.weight || 0,
+            height: post?.dogInfo?.height || 0,
+            color: post?.dogInfo?.color || '',
+            imageUrl: post?.imageUrl || '',
+          });
+      } catch (error) {
+          console.error("Error retrieving post:", error);
+      }
+  };
+
+  if (postId) {
+    initializeExistingPostInfo();
+  }
+  
 }, []);
 
 
@@ -133,51 +144,75 @@ export default function AddPost({ isOpen, closeModal }) {
   };
 
   const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, gender: event.target.value });
+    
+    let gender = Gender.MALE
+
+    if (event.target.value == Gender.FEMALE) {
+
+      gender = Gender.FEMALE
+
+    } 
+
+    setFormData({ ...formData, gender: gender });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    addPost()
+
+    savePost()
+    
   };
 
-  const addPost = async () => {
+  const savePost = async () => {
 
     try {
 
       let imageUrl = null
 
-    if (file != null) {
-      imageUrl = await uploadPhoto(file!!);
-    }
+      if (file != null) {
+        imageUrl = await uploadPhoto(file!!);
+      }
 
-    const dogInfoDetails: IDogInfo = {
-        breed: formData.breed!!,
-        gender: formData.gender!!,
-        name: formData.name!!,
-        age: formData.age,
-        ...(formData.weight !== 0 && { weight: formData.weight }),
-        ...(formData.height !== 0 && { height: formData.height }),
-        ...(typeof formData.color === 'string' && formData.color !== '' && { color: formData.color }),
-    }
+      const dogInfoDetails: IDogInfo = {
+          breed: formData.breed!!,
+          gender: formData.gender!!,
+          name: formData.name!!,
+          age: formData.age,
+          ...(formData.weight !== 0 && { weight: formData.weight }),
+          ...(formData.height !== 0 && { height: formData.height }),
+          ...(typeof formData.color === 'string' && formData.color !== '' && { color: formData.color }),
+      }
 
-    const post: IPostData = {
-      title: formData.title,
-      description: formData.description,
-      dogInfo: dogInfoDetails,
-      ...(typeof formData.city === 'string' && formData.city !== '' && { city: formData.city }),
-      ...(imageUrl !== null && { imageUrl: imageUrl }),
-    }
+      const post: IPostCreationData = {
+        title: formData.title,
+        description: formData.description,
+        dogInfo: dogInfoDetails,
+        ...(typeof formData.city === 'string' && formData.city !== '' && { city: formData.city }),
+        ...(imageUrl !== null && { imageUrl: imageUrl }),
+      }
 
-    await createPost(post)
+      if (postId) {
 
-    closeModal()
+        await editPost(postId!!, post)
+
+      } else {
+
+        await createPost(post)
+
+      }
+
+      setActiveStep(0);
+      closeModal()
+
+      if (!postId) {
+        window.location.reload();
+
+      }
 
     } catch (error) {
 
       console.log("Failed to save post")
-  }
-
+    }
 
 }
 
@@ -209,7 +244,8 @@ const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: str
               id="breed"
               options={breedNames}
               fullWidth
-              label="Breed"
+              // label="Breed"
+              value={formData.breed}
               onChange={handleBreedChange}
               renderInput={(params) => <TextField {...params} id="breed" error={formData.breed === '' && showErrors} label="Breed*" variant="outlined" />}
             />
@@ -221,7 +257,7 @@ const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: str
             label="Gender"
             name="gender"
             select
-            value={formData.gender || ''}
+            value={formData.gender}
             error={formData.gender == '' && showErrors}
             onChange={handleGenderChange}
           >
@@ -355,12 +391,18 @@ const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: str
             cursor: 'pointer',
             backgroundColor: acceptedFiles.length > 0 ? '#ddd' : 'white',
           }}>
-            {acceptedFiles.length === 0 && (
+             {acceptedFiles.length === 0 && formData?.imageUrl == '' && (
               <>
                 <Typography variant="body2" color="text.secondary">
                   Press to upload \ Drag & drop an image here
                 </Typography>
               </>
+            )}
+            { formData?.imageUrl !== '' && acceptedFiles.length === 0 && (
+              <img
+                src={ formData?.imageUrl }
+                style={{ width: '100%', height: '100%', objectFit: 'fill' }}
+              />
             )}
             {acceptedFiles.length > 0 && (
               <img
@@ -397,8 +439,11 @@ const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: str
                 boxShadow: 24,
                 p: 4,
                 overflowY: 'auto'
-              }}
-            >
+              }}>
+              <IconButton onClick={closeModal} aria-label="Delete" color="primary" sx={{ position: 'absolute', top: 8, right: 8 }}>
+                <CloseIcon></CloseIcon>
+              </IconButton>
+            <Box/>
           {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}> */}
           <Stepper activeStep={activeStep} alternativeLabel  sx={{ width: '100%' }}>
             {steps.map((step) => (
@@ -413,7 +458,7 @@ const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: str
                     </Button>
                     {activeStep === steps.length - 1 ? (
                       <Button variant="contained" onClick={handleSubmit}>
-                        Create Post
+                        {finalButtonText}
                       </Button>
                     ) : (
                       <Button variant="contained" onClick={handleNext}>

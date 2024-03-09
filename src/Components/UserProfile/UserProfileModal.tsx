@@ -7,7 +7,6 @@ import {
   Typography,
   TextField,
   IconButton,
-  Icon
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { IUser, getCurrentUserInfo, updateUser } from "../../services/user-services"

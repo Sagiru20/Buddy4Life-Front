@@ -1,7 +1,6 @@
-import { AxiosInstance, AxiosRequestConfig, IPostCreationData } from "axios";
-import { Gender, IDogInfo, IPost } from "../Models";
+import { AxiosInstance, AxiosRequestConfig } from "axios";
+import { Gender, IDogInfo, IPost, IPostCreationData } from "../Models";
 import { ICommentResponse, convertComment } from "./comments-service";
-import { backendClient } from "./BackendClient";
 
 interface GetPostsQueryParams {
     ownerId?: string | null;
@@ -51,7 +50,7 @@ function usePostService(axiosPrivate: AxiosInstance) {
     const createPost = (post: unknown) => {
         return new Promise<void>((resolve, reject) => {
             console.log("Creating post...");
-            backendClient
+            axiosPrivate
                 .post("/post", post)
                 .then(() => {
                     resolve();

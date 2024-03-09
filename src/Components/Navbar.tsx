@@ -100,11 +100,6 @@ function Navbar() {
         navigate("/signin");
     };
 
-    const signOut = async () => {
-        await logout();
-        navigate("/signin");
-    };
-
     const [showPostFormModal, setShowPostFormModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
 
@@ -142,7 +137,10 @@ function Navbar() {
                     >
                         New Post
                     </Button>
-                    <PostFormModal isOpen={showPostFormModal} closeModal={() => setShowPostFormModal(false)} />
+                    <PostFormModal
+                        isOpen={showPostFormModal}
+                        closeModal={() => setShowPostFormModal(false)}
+                    />
                 </Box>
 
                 <Box>

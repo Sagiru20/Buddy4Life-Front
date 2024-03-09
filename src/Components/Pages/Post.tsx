@@ -1,5 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import EditButton from "../Reusable/Buttons/TextButtons/EditButton";
+import PostFormModal from "../Posts/PostFormModal";
+
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import usePostService from "../../services/posts-services";
 
@@ -25,8 +28,11 @@ function Post() {
 
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);
+    const [showPostFormModal, setShowPostFormModal] = useState(false);
+    const [isPostChanged, setIsPostChanged] = useState(false);
 
     useEffect(() => {
+        console.log("called: " + isPostChanged)
         const fetchPost = async () => {
             try {
                 const post = await getPost(id!);
@@ -39,7 +45,7 @@ function Post() {
         };
 
         fetchPost();
-    }, [id]);
+    }, [id, isPostChanged]);
 
     if (loading) {
         return (
@@ -53,6 +59,13 @@ function Post() {
     if (!post) {
         return <PageNotFound />;
     }
+
+    const renderPostData = () => {
+        setShowPostFormModal(false)
+        setIsPostChanged(!isPostChanged)
+        setLoading(true)
+      };
+      
 
     return (
         <Box
@@ -96,6 +109,12 @@ function Post() {
                                     {post.title}
                                 </Typography>
 
+                                <EditButton
+                                            functionality={() => setShowPostFormModal(true)}
+                                            editingComm={false}
+                                        />
+                                <PostFormModal isOpen={showPostFormModal} postId={id} closeModal={renderPostData}/>
+
                                 <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                                     {/* TODO: Call backend to get owner name */}
                                     Created by {post.ownerId}, last modified:{" "}
@@ -123,7 +142,24 @@ function Post() {
                                                     <Typography variant="body1">{value ?? "-"}</Typography>
                                                 </Box>
                                             )
-                                    )}
+                                            )}
+                                            <Box
+                                            display="flex"
+                                            flexDirection="row"
+                                            justifyContent="space-between"
+                                            key="city"
+                                        >
+                                            <Typography
+                                                variant="body1"
+                                                component="div"
+                                                sx={{ fontWeight: 600 }}
+                                            >
+                                                city:
+                                            </Typography>
+
+                                            <Typography variant="body1">{post.city ?? "-"}</Typography>
+                                        </Box>
+                                    
                                 </Stack>
                             </CardContent>
                         </Card>
@@ -171,7 +207,7 @@ function Post() {
                                         mb: 3,
                                     }}
                                 >
-                                    Comments
+                                    Comments ({post?.comments?.length})
                                 </Typography>
 
                                 <CommentSection post={post} />

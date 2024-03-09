@@ -1,4 +1,4 @@
-import { AxiosInstance, AxiosRequestConfig } from "axios";
+import { AxiosInstance, AxiosRequestConfig, IPostCreationData } from "axios";
 import { Gender, IDogInfo, IPost } from "../Models";
 import { ICommentResponse, convertComment } from "./comments-service";
 import { backendClient } from "./BackendClient";
@@ -63,6 +63,14 @@ function usePostService(axiosPrivate: AxiosInstance) {
         });
     };
 
+    async function editPost(postId: string, newPost: IPostCreationData) {
+        try {
+            await axiosPrivate.put<IPostResponse>(`/post/${postId}`, newPost);
+        } catch (error) {
+            console.error(`Error trying to edit post with id ${postId}: `, error);
+        }
+    }
+
     function convertPost(postResponse: IPostResponse) {
         const convertedPost: IPost = {
             ...postResponse,
@@ -74,7 +82,7 @@ function usePostService(axiosPrivate: AxiosInstance) {
         return convertedPost;
     }
 
-    return { getPosts, getPost, createPost };
+    return { getPosts, getPost, createPost, editPost };
 }
 
 export default usePostService;

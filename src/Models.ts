@@ -40,6 +40,14 @@ export interface IPost {
     updatedAt: Date;
 }
 
+export interface IPostCreationData {
+    title: string;
+    description: string;
+    dogInfo: IDogInfo;
+    city?: string;
+    imageUrl?: string;
+  }
+
 export interface IBreed {
     id: number;
     breedName: string;

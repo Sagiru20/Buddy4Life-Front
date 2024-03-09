@@ -11,18 +11,21 @@ import {
     Box,
     Modal,
     Autocomplete,
+    IconButton,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
+import CloseIcon from "@mui/icons-material/Close";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import usePostService from "../../services/posts-services";
 import { uploadPhoto } from "../../services/file-services";
 import { getBreeds } from "../../DogBreedApi";
+import { IDogInfo, IPostCreationData, Gender } from "../../Models";
 
 export interface PostData {
     title: string;
     description: string;
     breed: string;
-    gender?: /*'male' | 'female';*/ string;
+    gender?: Gender;
     city: string;
     name: string;
     age: number;
@@ -32,37 +35,15 @@ export interface PostData {
     imageUrl?: string;
 }
 
-export interface IDogInfo {
-    name: string;
-    breed: string;
-    //TODO change to Gender
-    gender: string;
-    age: number;
-    weight?: number;
-    height?: number;
-    color?: string;
-}
-
-export interface IPostData {
-    title: string;
-    description: string;
-    dogInfo: IDogInfo;
-    city?: string;
-    imageUrl?: string;
-}
-
-// interface AddPostProps {
-//   onSubmit: (data: PostData) => void;
-// }
-
-export interface UserProfileModalProps {
+export interface PostFormModalProps {
     isOpen: boolean;
     closeModal: () => void;
+    postId?: string;
 }
 
-export default function AddPost({ isOpen, closeModal }) {
+export default function PostFormModal({ isOpen, closeModal, postId }: PostFormModalProps) {
     const backendPrivateClient = useAxiosPrivate();
-    const { createPost } = usePostService(backendPrivateClient);
+    const { createPost, getPost, editPost } = usePostService(backendPrivateClient);
 
     const [activeStep, setActiveStep] = useState(0);
     const [file, setFile] = useState<File | null>(null);
@@ -71,7 +52,7 @@ export default function AddPost({ isOpen, closeModal }) {
         description: "",
         city: "",
         breed: "",
-        gender: "",
+        gender: Gender.MALE,
         name: "",
         age: 0,
         weight: 0,
@@ -83,6 +64,8 @@ export default function AddPost({ isOpen, closeModal }) {
     const [showErrors, setShowErrors] = useState(false);
 
     const [breedNames, setBreedNames] = useState<string[]>([]);
+
+    const finalButtonText = postId ? "Update Post" : "Create Post";
 
     useEffect(() => {
         const fetchBreeds = async () => {
@@ -96,6 +79,33 @@ export default function AddPost({ isOpen, closeModal }) {
         };
 
         fetchBreeds();
+    }, []);
+
+    useEffect(() => {
+        const initializeExistingPostInfo = async () => {
+            try {
+                const post = await getPost(postId!);
+                setFormData({
+                    title: post?.title || "",
+                    description: post?.description || "",
+                    city: post?.city || "",
+                    breed: post?.dogInfo?.breed || "",
+                    gender: post?.dogInfo?.gender || Gender.MALE,
+                    name: post?.dogInfo?.name || "",
+                    age: post?.dogInfo?.age || 0,
+                    weight: post?.dogInfo?.weight || 0,
+                    height: post?.dogInfo?.height || 0,
+                    color: post?.dogInfo?.color || "",
+                    imageUrl: post?.imageUrl || "",
+                });
+            } catch (error) {
+                console.error("Error retrieving post:", error);
+            }
+        };
+
+        if (postId) {
+            initializeExistingPostInfo();
+        }
     }, []);
 
     const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
@@ -132,15 +142,22 @@ export default function AddPost({ isOpen, closeModal }) {
     };
 
     const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, gender: event.target.value });
+        let gender = Gender.MALE;
+
+        if (event.target.value == Gender.FEMALE) {
+            gender = Gender.FEMALE;
+        }
+
+        setFormData({ ...formData, gender: gender });
     };
 
     const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        addPost();
+
+        savePost();
     };
 
-    const addPost = async () => {
+    const savePost = async () => {
         try {
             let imageUrl = null;
 
@@ -158,7 +175,7 @@ export default function AddPost({ isOpen, closeModal }) {
                 ...(typeof formData.color === "string" && formData.color !== "" && { color: formData.color }),
             };
 
-            const post: IPostData = {
+            const post: IPostCreationData = {
                 title: formData.title,
                 description: formData.description,
                 dogInfo: dogInfoDetails,
@@ -166,9 +183,18 @@ export default function AddPost({ isOpen, closeModal }) {
                 ...(imageUrl !== null && { imageUrl: imageUrl }),
             };
 
-            await createPost(post);
+            if (postId) {
+                await editPost(postId!, post);
+            } else {
+                await createPost(post);
+            }
 
+            setActiveStep(0);
             closeModal();
+
+            if (!postId) {
+                window.location.reload();
+            }
         } catch (error) {
             console.log("Failed to save post");
         }
@@ -197,7 +223,8 @@ export default function AddPost({ isOpen, closeModal }) {
                         id="breed"
                         options={breedNames}
                         fullWidth
-                        label="Breed"
+                        // label="Breed"
+                        value={formData.breed}
                         onChange={handleBreedChange}
                         renderInput={(params) => (
                             <TextField
@@ -217,7 +244,7 @@ export default function AddPost({ isOpen, closeModal }) {
                         label="Gender"
                         name="gender"
                         select
-                        value={formData.gender || ""}
+                        value={formData.gender}
                         error={formData.gender == "" && showErrors}
                         onChange={handleGenderChange}
                     >
@@ -355,12 +382,18 @@ export default function AddPost({ isOpen, closeModal }) {
                             backgroundColor: acceptedFiles.length > 0 ? "#ddd" : "white",
                         }}
                     >
-                        {acceptedFiles.length === 0 && (
+                        {acceptedFiles.length === 0 && formData?.imageUrl == "" && (
                             <>
                                 <Typography variant="body2" color="text.secondary">
                                     Press to upload \ Drag & drop an image here
                                 </Typography>
                             </>
+                        )}
+                        {formData?.imageUrl !== "" && acceptedFiles.length === 0 && (
+                            <img
+                                src={formData?.imageUrl}
+                                style={{ width: "100%", height: "100%", objectFit: "fill" }}
+                            />
                         )}
                         {acceptedFiles.length > 0 && (
                             <img
@@ -403,6 +436,15 @@ export default function AddPost({ isOpen, closeModal }) {
                     overflowY: "auto",
                 }}
             >
+                <IconButton
+                    onClick={closeModal}
+                    aria-label="Delete"
+                    color="primary"
+                    sx={{ position: "absolute", top: 8, right: 8 }}
+                >
+                    <CloseIcon></CloseIcon>
+                </IconButton>
+                <Box />
                 {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}> */}
                 <Stepper activeStep={activeStep} alternativeLabel sx={{ width: "100%" }}>
                     {steps.map((step) => (
@@ -435,7 +477,7 @@ export default function AddPost({ isOpen, closeModal }) {
                                         </Button>
                                         {activeStep === steps.length - 1 ? (
                                             <Button variant="contained" onClick={handleSubmit}>
-                                                Create Post
+                                                {finalButtonText}
                                             </Button>
                                         ) : (
                                             <Button variant="contained" onClick={handleNext}>

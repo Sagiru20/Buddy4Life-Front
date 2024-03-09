@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { BackendPrivateClient } from "../services/BackendClient";
 import useRefreshToken from "./useRefreshToken";
-import { useAuth } from "./useAuth";
+import useAuth from "./useAuth";
 
 const useAxiosPrivate = () => {
     const refresh = useRefreshToken();
@@ -10,11 +10,11 @@ const useAxiosPrivate = () => {
     useEffect(() => {
         const requestIntercept = BackendPrivateClient.interceptors.request.use(
             (config) => {
-                console.log(config);
+                console.log("in request interceptors before", config.headers);
                 if (!config.headers["Authorization"]) {
-                    console.log(auth?.accessToken);
                     config.headers["Authorization"] = `Bearer ${auth?.accessToken}`;
                 }
+                console.log("in request interceptors after", config.headers);
                 return config;
             },
             (error) => Promise.reject(error)

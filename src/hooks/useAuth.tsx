@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import AuthContext from "../context/AuthProvider";
 
-export function useAuth() {
+function useAuth() {
     const auth = useContext(AuthContext);
 
     if (auth === undefined) {
@@ -10,3 +10,5 @@ export function useAuth() {
 
     return auth;
 }
+
+export default useAuth;

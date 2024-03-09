@@ -1,9 +1,8 @@
-import axios, { AxiosRequestConfig } from "axios";
+import { AxiosInstance } from "axios";
 import { CredentialResponse } from "@react-oauth/google";
 import { backendClient } from "./BackendClient";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
-interface IAuthResponse {
+export interface IAuthResponse {
     accessToken: string;
     refreshToken: string;
 }
@@ -27,34 +26,16 @@ export interface IGetUserResponse {
     imageUrl?: string;
 }
 
-const backendConfig: AxiosRequestConfig = {
-    baseURL: "http://localhost:9000/",
-};
-
-function useUserService() {
-    const axiosPrivate = useAxiosPrivate();
-
+function useUserService(axiosPrivate: AxiosInstance) {
     async function loginUser(email: string, password: string) {
         try {
-            const { data }: { data: IAuthResponse } = await axios.post<IAuthResponse>(
-                "/auth/login",
-                { email, password },
-                backendConfig
-            );
-            return data;
-        } catch (error) {
-            console.error(`Error trying to login user with email ${email}: `, error);
-        }
-    }
-
-    async function refreshToken() {
-        try {
-            const { data } = await axiosPrivate.get<IAuthResponse>("/auth/refresh", {
-                withCredentials: true,
+            const { data }: { data: IAuthResponse } = await backendClient.post<IAuthResponse>("/auth/login", {
+                email,
+                password,
             });
             return data;
         } catch (error) {
-            console.error("Error trying to refresh token", error);
+            console.error(`Error trying to login user with email ${email}: `, error);
         }
     }
 
@@ -117,7 +98,7 @@ function useUserService() {
         });
     };
 
-    return { loginUser, refreshToken, getUser, registerUser, googleSignin, updateUser };
+    return { loginUser, getUser, registerUser, googleSignin, updateUser };
 }
 
 export default useUserService;

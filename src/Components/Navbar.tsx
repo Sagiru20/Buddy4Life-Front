@@ -21,7 +21,7 @@ import {
     Avatar,
     AppBar,
 } from "@mui/material";
-import { useAuth } from "../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
 const tabsTheme = createTheme({
     palette: {
@@ -94,7 +94,6 @@ function Navbar() {
 
     const [showAddPost, setShowAddPost] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-
 
     return (
         <AppBar position="sticky">
@@ -171,7 +170,9 @@ function Navbar() {
                         onClose={handleCloseUserMenu}
                     >
                         <MenuItem key="profile" onClick={handleCloseUserMenu}>
-                        <Typography  onClick={() => setShowProfile(true)} textAlign="center">Profile</Typography>
+                            <Typography onClick={() => setShowProfile(true)} textAlign="center">
+                                Profile
+                            </Typography>
                             {/* <Button
                                 key="profileButton"
                                 variant="contained"

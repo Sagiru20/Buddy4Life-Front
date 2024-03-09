@@ -1,8 +1,7 @@
-import { AxiosRequestConfig } from "axios";
+import { AxiosInstance, AxiosRequestConfig } from "axios";
 import { Gender, IDogInfo, IPost } from "../Models";
 import { ICommentResponse, convertComment } from "./comments-service";
 import { backendClient } from "./BackendClient";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 interface GetPostsQueryParams {
     ownerId?: string | null;
@@ -24,9 +23,7 @@ interface IPostResponse {
     updatedAt: string;
 }
 
-function usePostService() {
-    const axiosPrivate = useAxiosPrivate();
-
+function usePostService(axiosPrivate: AxiosInstance) {
     async function getPosts(queryParams: GetPostsQueryParams) {
         queryParams = {
             ...queryParams,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -19,13 +19,15 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
 import useUserService from "../../services/user-services";
-import { useAuth } from "../../hooks/useAuth";
 import DogParkImage from "../../assets/dog_park.jpg";
 
 function SignIn() {
-    const { setAuth } = useAuth();
-    const { loginUser, getUser, googleSignin } = useUserService();
+    const { auth, setAuth } = useAuth();
+    const backendPrivateClient = useAxiosPrivate();
+    const { loginUser, getUser, googleSignin } = useUserService(backendPrivateClient);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -34,6 +36,7 @@ function SignIn() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [isUserLogged, setIsUserLogged] = useState<boolean>(false);
 
     const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(event.target.value);
@@ -49,28 +52,31 @@ function SignIn() {
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        // Make the login request
         const loginResponse = await loginUser(email, password);
         const accessToken = loginResponse?.accessToken;
-        console.log(accessToken);
         if (accessToken) {
-            console.log(accessToken);
-            setAuth({ accessToken });
-            const userResponse = await getUser();
-            if (userResponse) {
-                setAuth({ userInfo: userResponse, accessToken });
-                setEmail("");
-                setPassword("");
-                navigate(from, { replace: true });
-            }
+            setAuth({ ...auth, accessToken });
+            setIsUserLogged(true);
         } else {
             console.log("Login failed");
         }
     }
 
+    useEffect(() => {
+        async function getUserDetails() {
+            const userResponse = await getUser();
+            if (userResponse) {
+                setAuth({ ...auth, userInfo: userResponse });
+                setEmail("");
+                setPassword("");
+                navigate(from, { replace: true });
+            }
+        }
+
+        if (isUserLogged) getUserDetails();
+    }, [isUserLogged]);
+
     const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
-        console.log(credentialResponse);
         try {
             await googleSignin(credentialResponse);
             navigate("/posts");

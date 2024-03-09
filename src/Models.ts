@@ -67,6 +67,6 @@ interface IUserInfo {
     imageUrl?: string;
 }
 export interface ILoggedUser {
-    accessToken: string;
+    accessToken?: string;
     userInfo?: IUserInfo;
 }

@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
 import { Button, Modal, Box, Typography, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import useUserService, { IGetUserResponse } from "../../services/user-services";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { uploadPhoto } from "../../services/file-services";
-import { useDropzone } from "react-dropzone";
 
 export interface UserProfileModalProps {
     isOpen: boolean;
@@ -18,7 +19,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
         firstName: "Loading...",
         lastName: "Loading...",
     };
-    const { getUser, updateUser } = useUserService();
+    const backendPrivateClient = useAxiosPrivate();
+    const { getUser, updateUser } = useUserService(backendPrivateClient);
 
     const [user, setUser] = useState(initUser);
     const [file, setFile] = useState<File | null>(null);

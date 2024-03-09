@@ -1,12 +1,10 @@
-import axios, { CanceledError } from "axios";
+import axios, { AxiosInstance } from "axios";
 
-export { CanceledError };
-
-export const backendClient = axios.create({
+export const backendClient: AxiosInstance = axios.create({
     baseURL: "http://localhost:9000",
 });
 
-export const BackendPrivateClient = axios.create({
+export const BackendPrivateClient: AxiosInstance = axios.create({
     baseURL: "http://localhost:9000/",
     headers: { "Content-Type": "application/json" },
     withCredentials: true,

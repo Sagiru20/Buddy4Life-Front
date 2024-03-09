@@ -1,4 +1,4 @@
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { AxiosInstance } from "axios";
 import { IComment } from "../Models";
 
 export interface ICommentResponse {
@@ -19,9 +19,7 @@ export function convertComment(commentResponse: ICommentResponse) {
     return convertedComment;
 }
 
-function useCommentService() {
-    const axiosPrivate = useAxiosPrivate();
-
+function useCommentService(axiosPrivate: AxiosInstance) {
     async function createComment(postId: string, text: string) {
         try {
             const { data }: { data: ICommentResponse } = await axiosPrivate.post<ICommentResponse>(

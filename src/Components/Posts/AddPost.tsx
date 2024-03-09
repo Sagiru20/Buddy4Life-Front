@@ -13,6 +13,7 @@ import {
     Autocomplete,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import usePostService from "../../services/posts-services";
 import { uploadPhoto } from "../../services/file-services";
 import { getBreeds } from "../../DogBreedApi";
@@ -60,7 +61,8 @@ export interface UserProfileModalProps {
 }
 
 export default function AddPost({ isOpen, closeModal }) {
-    const { createPost } = usePostService();
+    const backendPrivateClient = useAxiosPrivate();
+    const { createPost } = usePostService(backendPrivateClient);
 
     const [activeStep, setActiveStep] = useState(0);
     const [file, setFile] = useState<File | null>(null);
@@ -133,7 +135,7 @@ export default function AddPost({ isOpen, closeModal }) {
         setFormData({ ...formData, gender: event.target.value });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         addPost();
     };

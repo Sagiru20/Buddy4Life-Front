@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import usePostService from "../../services/posts-services";
 
 import {
@@ -19,7 +20,8 @@ import { IPost } from "../../Models";
 
 function Post() {
     const { id } = useParams<{ id: string }>();
-    const { getPost } = usePostService();
+    const backendPrivateClient = useAxiosPrivate();
+    const { getPost } = usePostService(backendPrivateClient);
 
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);

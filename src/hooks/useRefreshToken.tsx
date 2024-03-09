@@ -1,19 +1,25 @@
-import useUserService from "../services/user-services";
-import { useAuth } from "./useAuth";
+import axios from "axios";
+import useAuth from "./useAuth";
+import { IAuthResponse } from "../services/user-services";
 
 const useRefreshToken = () => {
     const { setAuth } = useAuth();
-    const { refreshToken } = useUserService();
 
     const refresh = async () => {
-        const data = await refreshToken();
-        if (data !== undefined) {
-            setAuth((prev) => {
-                console.log(JSON.stringify(prev));
-                console.log(data?.accessToken);
-                return { ...prev, accessToken: data?.accessToken };
+        try {
+            const { data } = await axios.get<IAuthResponse>("/auth/refresh", {
+                withCredentials: true,
             });
-            return data?.accessToken;
+            console.log("in refresh  ", data);
+
+            if (data !== undefined) {
+                setAuth((prev) => {
+                    return { ...prev, accessToken: data?.accessToken };
+                });
+                return data?.accessToken;
+            }
+        } catch (error) {
+            console.error("Error trying to refresh token", error);
         }
     };
     return refresh;

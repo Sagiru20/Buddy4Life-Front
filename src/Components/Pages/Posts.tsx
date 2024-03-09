@@ -1,16 +1,18 @@
 import { useState, useEffect, ChangeEvent, SyntheticEvent } from "react";
+import { Autocomplete, Box, Container, Divider, Grid, IconButton, TextField, Stack } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import { IPost, IBreed, Gender, PostsOwnerShip } from "../../Models";
+import useAuth from "../../hooks/useAuth";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import usePostService from "../../services/posts-services";
 import { getBreeds } from "../../DogBreedApi";
 import PostCard from "../PostCard";
 import PostsOwnershipToggleButton from "../PostsTypeToggleButton";
-import SearchIcon from "@mui/icons-material/Search";
-import { Autocomplete, Box, Container, Divider, Grid, IconButton, TextField, Stack } from "@mui/material";
-import { useAuth } from "../../hooks/useAuth";
 
 function Posts() {
     const { auth } = useAuth();
-    const { getPosts } = usePostService();
+    const backendPrivateClient = useAxiosPrivate();
+    const { getPosts } = usePostService(backendPrivateClient);
 
     const [posts, setPosts] = useState<IPost[]>([]);
     const [breeds, setBreeds] = useState<IBreed[]>([]);

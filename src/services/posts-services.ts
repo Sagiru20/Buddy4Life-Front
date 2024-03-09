@@ -1,5 +1,5 @@
 import apiClient, { CanceledError } from "./api-client"
-import { Gender, IDogInfo, IPost } from "../Models";
+import { Gender, IDogInfo, IPost, IPostCreationData } from "../Models";
 import {ICommentResponse, convertComment} from "./comments-service"
 
 
@@ -38,6 +38,19 @@ export const createPost = (post) => {
         });
     });
   };
+
+  export async function editPost(postId: string, newPost: IPostCreationData ) {
+
+    try {
+      const { data }: { data: IPostResponse } = await apiClient.put<IPostResponse>(
+          `/post/${postId}`,
+          newPost
+      );
+
+  } catch (error) {
+      console.error(`Error trying to edit post with id ${postId}: `, error);
+  }
+}
 
 export async function getPost(id: string) {
   try {

@@ -1,6 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPost } from "../../services/posts-services";
+import EditButton from "../Reusable/Buttons/TextButtons/EditButton";
+import AddPost from "../Posts/AddPost";
+
 
 import {
     Box,
@@ -21,6 +24,8 @@ function Post() {
     const { id } = useParams();
     const [post, setPost] = useState<IPost | null>(null);
     const [loading, setLoading] = useState(true);
+    const [showAddPost, setShowAddPost] = useState(false);
+    const [isPostChanged, setIsPostChanged] = useState(false);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -31,11 +36,12 @@ function Post() {
                 console.error("Error fetching posts:", error);
             } finally {
                 setLoading(false);
+                setIsPostChanged(false)
             }
         };
 
         fetchPost();
-    }, [id]);
+    }, [id, isPostChanged, post]);
 
     if (loading) {
         return (
@@ -49,6 +55,13 @@ function Post() {
     if (!post) {
         return <PageNotFound />;
     }
+
+    const renderPostData = () => {
+        setShowAddPost(false)
+        setIsPostChanged(true);
+        setLoading(true)
+      };
+      
 
     return (
         <Box
@@ -92,6 +105,12 @@ function Post() {
                                     {post.title}
                                 </Typography>
 
+                                <EditButton
+                                            functionality={() => setShowAddPost(true)}
+                                            editingComm={false}
+                                        />
+                                <AddPost isOpen={showAddPost} postId={id} closeModal={renderPostData}/>
+
                                 <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                                     {/* TODO: Call backend to get owner name */}
                                     Created by {post.ownerId}, last modified:{" "}
@@ -119,7 +138,24 @@ function Post() {
                                                     <Typography variant="body1">{value ?? "-"}</Typography>
                                                 </Box>
                                             )
-                                    )}
+                                            )}
+                                            <Box
+                                            display="flex"
+                                            flexDirection="row"
+                                            justifyContent="space-between"
+                                            key="city"
+                                        >
+                                            <Typography
+                                                variant="body1"
+                                                component="div"
+                                                sx={{ fontWeight: 600 }}
+                                            >
+                                                city:
+                                            </Typography>
+
+                                            <Typography variant="body1">{post.city ?? "-"}</Typography>
+                                        </Box>
+                                    
                                 </Stack>
                             </CardContent>
                         </Card>
@@ -167,7 +203,7 @@ function Post() {
                                         mb: 3,
                                     }}
                                 >
-                                    Comments
+                                    Comments ({post?.comments?.length})
                                 </Typography>
 
                                 <CommentSection post={post} />

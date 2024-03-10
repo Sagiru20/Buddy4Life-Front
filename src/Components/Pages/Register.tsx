@@ -3,6 +3,8 @@ import { appTheme } from "../AppTheme";
 import DogParkImage from "../../assets/dog_park.jpg";
 import { blue, red } from "@mui/material/colors";
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { IUser, registerUser } from "../../services/user-services";
 import {
     Avatar,
     Button,
@@ -52,17 +54,30 @@ export default function RegisterSide() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [, setFile] = useState<File | null>(null);
-
+    const navigate = useNavigate();
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        // TODO send the data and register
-        console.log("First Name:", firstName);
-        console.log("Last Name:", lastName);
-        console.log("Email:", email);
-        console.log("Password:", password);
+        
+        register()
     };
+
+
+    const register = async () => {
+      
+        const user: IUser = {
+            email: email,
+            password: password,
+            firstName: firstName,
+            lastName: lastName
+        }
+        try {
+
+            await registerUser(user)
+            navigate("/login");
+        } catch (error) {
+            console.log("register failed: " + error);
+        }
+    }
 
     const handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFirstName(event.target.value);
@@ -82,12 +97,6 @@ export default function RegisterSide() {
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
-    };
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setFile(event.target.files[0]);
-        }
     };
 
     return (
@@ -182,9 +191,6 @@ export default function RegisterSide() {
                                         helperText="Password must be at least 6 characters long"
                                         error={password.length < 6 && password !== ""}
                                     />
-                                </FormControl>
-                                <FormControl fullWidth margin="normal">
-                                    <Input id="file-upload" type="file" onChange={handleFileChange} />
                                 </FormControl>
                                 <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                                     Register me!

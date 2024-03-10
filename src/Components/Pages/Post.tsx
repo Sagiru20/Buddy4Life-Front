@@ -28,7 +28,7 @@ function Post() {
     const [isPostChanged, setIsPostChanged] = useState(false);
 
     useEffect(() => {
-        console.log("called: " + isPostChanged)
+        
         const fetchPost = async () => {
             try {
                 const post = await getPost(id!);
@@ -206,7 +206,7 @@ function Post() {
                                     Comments ({post?.comments?.length})
                                 </Typography>
 
-                                <CommentSection post={post} />
+                                <CommentSection post={post} renderCommentsCount={renderPostData}/>
                             </CardContent>
                         </Card>
                     </Grid>

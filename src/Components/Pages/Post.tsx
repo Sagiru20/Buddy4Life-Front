@@ -32,7 +32,7 @@ function Post() {
     const [isPostChanged, setIsPostChanged] = useState(false);
 
     useEffect(() => {
-        console.log("called: " + isPostChanged)
+        console.log("called: " + isPostChanged);
         const fetchPost = async () => {
             try {
                 const post = await getPost(id!);
@@ -61,11 +61,10 @@ function Post() {
     }
 
     const renderPostData = () => {
-        setShowPostFormModal(false)
-        setIsPostChanged(!isPostChanged)
-        setLoading(true)
-      };
-      
+        setShowPostFormModal(false);
+        setIsPostChanged(!isPostChanged);
+        setLoading(true);
+    };
 
     return (
         <Box
@@ -110,10 +109,14 @@ function Post() {
                                 </Typography>
 
                                 <EditButton
-                                            functionality={() => setShowPostFormModal(true)}
-                                            editingComm={false}
-                                        />
-                                <PostFormModal isOpen={showPostFormModal} postId={id} closeModal={renderPostData}/>
+                                    functionality={() => setShowPostFormModal(true)}
+                                    editingComm={false}
+                                />
+                                <PostFormModal
+                                    isOpen={showPostFormModal}
+                                    postId={id}
+                                    closeModal={renderPostData}
+                                />
 
                                 <Typography variant="body1" component="div" sx={{ mb: 1 }}>
                                     {/* TODO: Call backend to get owner name */}
@@ -142,24 +145,19 @@ function Post() {
                                                     <Typography variant="body1">{value ?? "-"}</Typography>
                                                 </Box>
                                             )
-                                            )}
-                                            <Box
-                                            display="flex"
-                                            flexDirection="row"
-                                            justifyContent="space-between"
-                                            key="city"
-                                        >
-                                            <Typography
-                                                variant="body1"
-                                                component="div"
-                                                sx={{ fontWeight: 600 }}
-                                            >
-                                                city:
-                                            </Typography>
+                                    )}
+                                    <Box
+                                        display="flex"
+                                        flexDirection="row"
+                                        justifyContent="space-between"
+                                        key="city"
+                                    >
+                                        <Typography variant="body1" component="div" sx={{ fontWeight: 600 }}>
+                                            city:
+                                        </Typography>
 
-                                            <Typography variant="body1">{post.city ?? "-"}</Typography>
-                                        </Box>
-                                    
+                                        <Typography variant="body1">{post.city ?? "-"}</Typography>
+                                    </Box>
                                 </Stack>
                             </CardContent>
                         </Card>

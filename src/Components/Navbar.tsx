@@ -184,6 +184,7 @@ function Navbar() {
                             <Typography onClick={() => setShowProfile(true)} textAlign="center">
                                 Profile
                             </Typography>
+                            
                             <UserProfileModal isOpen={showProfile} closeModal={() => setShowProfile(false)} />
                         </MenuItem>
 

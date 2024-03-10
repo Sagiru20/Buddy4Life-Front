@@ -1,18 +1,18 @@
-import * as React from "react";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Button, Modal, Box, Typography, TextField, IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import useUserService, { IGetUserResponse } from "../../services/user-services";
+import { Avatar, Button, Modal, Box, Typography, TextField, IconButton, styled, Badge } from "@mui/material";
+import { Edit as EditIcon, Close as CloseIcon } from "@mui/icons-material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useUserService, { IGetUserResponse } from "../../services/user-services";
 import { uploadPhoto } from "../../services/file-services";
+import { Stack } from "@mui/system";
 
 export interface UserProfileModalProps {
     isOpen: boolean;
     closeModal: () => void;
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal }) => {
+function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
     const initUser: IGetUserResponse = {
         _id: "Loading...",
         email: "Loading...",
@@ -58,10 +58,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
         }
     };
 
-    const enableEdit = () => {
-        setIsEditing(true);
-    };
-
     const handleSave = async () => {
         let imageUrl = null;
 
@@ -84,8 +80,21 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
         setIsEditing(false);
     };
 
+    const StyledAvatar = styled(Avatar)(({ theme }) => ({
+        width: theme.spacing(16),
+        height: theme.spacing(16),
+        borderRadius: "50%",
+    }));
+
+    const SmallAvatar = styled(Avatar)(({ theme }) => ({
+        width: theme.spacing(5),
+        height: theme.spacing(5),
+        border: `2px solid ${theme.palette.background.paper}`,
+    }));
+
     return (
         <Modal
+            keepMounted
             open={isOpen}
             onClose={closeModal}
             aria-labelledby="modal-modal-title"
@@ -99,65 +108,45 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
                     transform: "translate(-50%, -50%)",
                     width: 400,
                     bgcolor: "background.paper",
-                    border: "2px solid #000",
-                    borderRadius: "10px",
-                    p: 4,
+                    borderRadius: "12px",
+                    p: 3,
                 }}
             >
-                <Typography id="modal-modal-title" variant="h6" component="h2">
+                <Typography id="modal-title" variant="h5" sx={{ mb: 3 }}>
                     User Profile
                 </Typography>
+
                 <IconButton
                     onClick={closeModal}
                     aria-label="Delete"
                     color="primary"
                     sx={{ position: "absolute", top: 8, right: 8 }}
                 >
-                    <CloseIcon></CloseIcon>
+                    <CloseIcon />
                 </IconButton>
-                <Box component="form" noValidate sx={{ mt: 1 }}>
-                    {!isEditing && <Button onClick={enableEdit}>Edit</Button>}
 
-                    <Box
-                        {...getRootProps()}
-                        sx={{
-                            border: 1,
-                            borderColor: "gray",
-                            borderRadius: 2,
-                            padding: 2,
-                            width: 200,
-                            height: 100,
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            cursor: "pointer",
-                            backgroundColor: acceptedFiles.length > 0 ? "#ddd" : "white",
-                        }}
-                    >
-                        {acceptedFiles.length === 0 && user?.imageUrl == null && (
-                            <>
-                                <Typography variant="body2" color="text.secondary">
-                                    Press to upload \ Drag & drop an image here
-                                </Typography>
-                            </>
+                <Box component="form" noValidate sx={{ mt: 1 }}>
+                    <Box {...getRootProps()} display="flex" justifyContent="center" sx={{ mb: 5 }}>
+                        {isEditing ? (
+                            <Badge
+                                overlap="circular"
+                                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                badgeContent={
+                                    <SmallAvatar alt="Edit avatar">
+                                        <EditIcon />
+                                    </SmallAvatar>
+                                }
+                            >
+                                <StyledAvatar src={user?.imageUrl} alt="User Avatar" />
+                            </Badge>
+                        ) : (
+                            <StyledAvatar src={user?.imageUrl} alt="User Avatar" />
                         )}
-                        {user?.imageUrl !== null && acceptedFiles.length === 0 && (
-                            <img
-                                src={user?.imageUrl}
-                                style={{ width: "100%", height: "100%", objectFit: "fill" }}
-                            />
-                        )}
-                        {acceptedFiles.length > 0 && (
-                            <img
-                                src={URL.createObjectURL(acceptedFiles[0])}
-                                alt="Uploaded image"
-                                style={{ width: "100%", height: "100%", objectFit: "fill" }}
-                            />
-                        )}
+
                         <input {...getInputProps()} />
                     </Box>
 
-                    <>
+                    <Stack spacing={3} direction="column">
                         <TextField
                             margin="normal"
                             required
@@ -170,6 +159,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
                             disabled={!isEditing}
                             onChange={(e) => setEditedFirstName(e.target.value)}
                         />
+
                         <TextField
                             margin="normal"
                             required
@@ -182,6 +172,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
                             disabled={!isEditing}
                             onChange={(e) => setEditedLastName(e.target.value)}
                         />
+
                         <TextField
                             margin="normal"
                             required
@@ -193,12 +184,35 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, closeModal 
                             value={editedEmail}
                             disabled={true}
                         />
-                        <Button onClick={handleSave}>Save</Button>
-                    </>
+
+                        {isEditing ? (
+                            <Button
+                                variant="contained"
+                                size="medium"
+                                onClick={handleSave}
+                                color="secondary"
+                                sx={{ alignSelf: "flex-end", width: "30%" }}
+                            >
+                                Save
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                size="medium"
+                                onClick={() => {
+                                    setIsEditing(true);
+                                }}
+                                color="secondary"
+                                sx={{ alignSelf: "flex-end", width: "30%" }}
+                            >
+                                Edit
+                            </Button>
+                        )}
+                    </Stack>
                 </Box>
             </Box>
         </Modal>
     );
-};
+}
 
 export default UserProfileModal;

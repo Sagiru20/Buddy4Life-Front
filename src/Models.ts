@@ -67,13 +67,14 @@ export interface IBreed {
     imgCreativeCommons?: boolean;
 }
 
-interface IUserInfo {
+export interface IUserInfo {
     _id: string;
     email: string;
     firstName: string;
     lastName: string;
     imageUrl?: string;
 }
+
 export interface ILoggedUser {
     accessToken?: string;
     userInfo?: IUserInfo;

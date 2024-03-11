@@ -1,7 +1,12 @@
 import { Edit } from "@mui/icons-material";
 import { Button } from "@mui/material";
 
-const EditButton = ({ functionality, editingComm }) => {
+interface Props {
+    functionality: () => void;
+    editingComm: boolean;
+}
+
+const EditButton = ({ functionality, editingComm }: Props) => {
     return (
         <Button
             startIcon={<Edit />}

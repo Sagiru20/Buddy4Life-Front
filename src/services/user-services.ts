@@ -1,6 +1,7 @@
 import { AxiosInstance } from "axios";
 import { CredentialResponse } from "@react-oauth/google";
 import { backendClient } from "./BackendClient";
+import { IUserInfo } from "../Models";
 
 export interface IAuthResponse {
     accessToken: string;
@@ -18,9 +19,7 @@ export interface IUser {
     refreshToken?: string;
 }
 
-export interface IGetUserResponse {
-    _id: string;
-    email: string;
+export interface IEditUser {
     firstName: string;
     lastName: string;
     imageUrl?: string;
@@ -41,9 +40,7 @@ function useUserService(axiosPrivate: AxiosInstance) {
 
     async function getUser(id: string = "me") {
         try {
-            const { data }: { data: IGetUserResponse } = await axiosPrivate.get<IGetUserResponse>(
-                `/user/${id}`
-            );
+            const { data }: { data: IUserInfo } = await axiosPrivate.get<IUserInfo>(`/user/${id}`);
             return data;
         } catch (error) {
             console.error(`Error trying to get user with id ${id}: `, error);
@@ -83,11 +80,10 @@ function useUserService(axiosPrivate: AxiosInstance) {
         });
     };
 
-    const updateUser = (user: IUser) => {
+    const updateUser = (userID: string, newUserInfo: IEditUser) => {
         return new Promise<void>((resolve, reject) => {
-            console.log("id " + user._id);
             axiosPrivate
-                .put(`/user/${user._id}`, user)
+                .put(`/user/${userID}`, newUserInfo)
                 .then(() => {
                     resolve();
                 })

@@ -1,11 +1,23 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Avatar, Button, Modal, Box, Typography, TextField, IconButton, styled, Badge } from "@mui/material";
+import {
+    Avatar,
+    Badge,
+    Button,
+    Modal,
+    Box,
+    Typography,
+    TextField,
+    IconButton,
+    Stack,
+    styled,
+} from "@mui/material";
 import { Edit as EditIcon, Close as CloseIcon } from "@mui/icons-material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useUserService, { IGetUserResponse } from "../../services/user-services";
+import useAuth from "../../hooks/useAuth";
+import useUserService, { IEditUser } from "../../services/user-services";
 import { uploadPhoto } from "../../services/file-services";
-import { Stack } from "@mui/system";
+import { IUserInfo } from "../../Models";
 
 export interface UserProfileModalProps {
     isOpen: boolean;
@@ -13,22 +25,25 @@ export interface UserProfileModalProps {
 }
 
 function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
-    const initUser: IGetUserResponse = {
-        _id: "Loading...",
-        email: "Loading...",
-        firstName: "Loading...",
-        lastName: "Loading...",
-    };
-    const backendPrivateClient = useAxiosPrivate();
-    const { getUser, updateUser } = useUserService(backendPrivateClient);
+    const { auth, setAuth } = useAuth();
+    const [oldUserDetails, setOldUserDetails] = useState<IUserInfo | undefined>(auth.userInfo);
 
-    const [user, setUser] = useState(initUser);
+    const backendPrivateClient = useAxiosPrivate();
+    const { updateUser } = useUserService(backendPrivateClient);
+
     const [file, setFile] = useState<File | null>(null);
 
-    const [editedFirstName, setEditedFirstName] = useState(user.firstName);
-    const [editedLastName, setEditedLastName] = useState(user.lastName);
-    const [editedEmail, setEditedEmail] = useState(user.email);
-    const [isEditing, setIsEditing] = useState(false);
+    const [editedFirstName, setEditedFirstName] = useState<string>();
+    const [editedLastName, setEditedLastName] = useState<string>();
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (auth.userInfo?.firstName && auth.userInfo?.lastName) {
+            setOldUserDetails(auth.userInfo);
+            setEditedFirstName(auth.userInfo.firstName);
+            setEditedLastName(auth.userInfo.lastName);
+        }
+    }, [auth?.userInfo]);
 
     const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
         disabled: !isEditing,
@@ -44,18 +59,13 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
         multiple: false,
     });
 
-    useEffect(() => {
-        initUserDetails();
-    }, []);
-
-    const initUserDetails = async () => {
-        const currentUser = await getUser();
-        if (currentUser !== undefined) {
-            setUser(currentUser);
-            setEditedFirstName(currentUser.firstName);
-            setEditedLastName(currentUser.lastName);
-            setEditedEmail(currentUser.email);
+    const handleCancel = async () => {
+        console.log(oldUserDetails);
+        if (oldUserDetails !== undefined) {
+            setEditedFirstName(oldUserDetails.firstName);
+            setEditedLastName(oldUserDetails.lastName);
         }
+        setIsEditing(false);
     };
 
     const handleSave = async () => {
@@ -64,19 +74,19 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
         if (file != null) {
             imageUrl = await uploadPhoto(file!);
         } else {
-            imageUrl = user.imageUrl;
+            imageUrl = auth.userInfo?.imageUrl;
         }
 
-        const updatedUser: IGetUserResponse = {
-            _id: user._id,
-            email: editedEmail,
-            firstName: editedFirstName,
-            lastName: editedLastName,
-            ...(imageUrl != null && { imageUrl: imageUrl }),
-        };
+        if (auth.userInfo?._id && editedFirstName && editedLastName) {
+            const updatedUser: IEditUser = {
+                firstName: editedFirstName,
+                lastName: editedLastName,
+                ...(imageUrl != null && { imageUrl: imageUrl }),
+            };
 
-        await updateUser(updatedUser);
-        setUser(updatedUser);
+            await updateUser(auth.userInfo._id, updatedUser);
+            setAuth({ ...auth, userInfo: { ...auth.userInfo, ...updatedUser } });
+        }
         setIsEditing(false);
     };
 
@@ -92,9 +102,16 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
         border: `2px solid ${theme.palette.background.paper}`,
     }));
 
+    function getImageSrc() {
+        if (!isEditing || (isEditing && acceptedFiles.length === 0)) return auth.userInfo?.imageUrl;
+
+        if (isEditing && acceptedFiles.length > 0) {
+            return URL.createObjectURL(acceptedFiles[0]);
+        }
+    }
+
     return (
         <Modal
-            keepMounted
             open={isOpen}
             onClose={closeModal}
             aria-labelledby="modal-modal-title"
@@ -119,14 +136,14 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
                 <IconButton
                     onClick={closeModal}
                     aria-label="Delete"
-                    color="primary"
+                    color="error"
                     sx={{ position: "absolute", top: 8, right: 8 }}
                 >
                     <CloseIcon />
                 </IconButton>
 
                 <Box component="form" noValidate sx={{ mt: 1 }}>
-                    <Box {...getRootProps()} display="flex" justifyContent="center" sx={{ mb: 5 }}>
+                    <Box {...getRootProps()} display="flex" justifyContent="center" sx={{ mb: 2 }}>
                         {isEditing ? (
                             <Badge
                                 overlap="circular"
@@ -137,13 +154,19 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
                                     </SmallAvatar>
                                 }
                             >
-                                <StyledAvatar src={user?.imageUrl} alt="User Avatar" />
+                                <StyledAvatar src={getImageSrc()} />
                             </Badge>
                         ) : (
-                            <StyledAvatar src={user?.imageUrl} alt="User Avatar" />
+                            <StyledAvatar src={getImageSrc()} />
                         )}
 
                         <input {...getInputProps()} />
+                    </Box>
+
+                    <Box display="flex" justifyContent="center" sx={{ mb: 4 }}>
+                        <Typography variant="h6" alignSelf="center">
+                            {auth.userInfo?.email}
+                        </Typography>
                     </Box>
 
                     <Stack spacing={3} direction="column">
@@ -153,11 +176,10 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
                             fullWidth
                             id="firstName"
                             label="First Name"
-                            name="firstName"
-                            autoComplete="firstName"
                             value={editedFirstName}
                             disabled={!isEditing}
                             onChange={(e) => setEditedFirstName(e.target.value)}
+                            InputLabelProps={{ shrink: !!editedFirstName }}
                         />
 
                         <TextField
@@ -166,35 +188,35 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
                             fullWidth
                             id="lastName"
                             label="Last Name"
-                            name="lastName"
-                            autoComplete="lastName"
                             value={editedLastName}
                             disabled={!isEditing}
                             onChange={(e) => setEditedLastName(e.target.value)}
-                        />
-
-                        <TextField
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email"
-                            name="email"
-                            autoComplete="email"
-                            value={editedEmail}
-                            disabled={true}
+                            InputLabelProps={{ shrink: !!editedFirstName }}
                         />
 
                         {isEditing ? (
-                            <Button
-                                variant="contained"
-                                size="medium"
-                                onClick={handleSave}
-                                color="secondary"
-                                sx={{ alignSelf: "flex-end", width: "30%" }}
-                            >
-                                Save
-                            </Button>
+                            <Stack spacing={3} direction="row" sx={{ alignSelf: "end" }}>
+                                <Button
+                                    variant="contained"
+                                    size="medium"
+                                    onClick={handleCancel}
+                                    sx={{
+                                        bgcolor: "hsl(211, 10%, 45%)",
+                                        "&:hover": { bgcolor: "hsl(211, 10%, 45%)" },
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+
+                                <Button
+                                    variant="contained"
+                                    size="medium"
+                                    onClick={handleSave}
+                                    color="secondary"
+                                >
+                                    Save
+                                </Button>
+                            </Stack>
                         ) : (
                             <Button
                                 variant="contained"
@@ -202,8 +224,12 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
                                 onClick={() => {
                                     setIsEditing(true);
                                 }}
-                                color="secondary"
-                                sx={{ alignSelf: "flex-end", width: "30%" }}
+                                sx={{
+                                    alignSelf: "flex-end",
+                                    width: "30%",
+                                    backgroundColor: "hsl(238, 40%, 52%)",
+                                    "&:hover": { opacity: 0.8, backgroundColor: "hsl(238, 40%, 52%)" },
+                                }}
                             >
                                 Edit
                             </Button>

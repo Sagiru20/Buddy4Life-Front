@@ -32,7 +32,6 @@ function Post() {
     const [isPostChanged, setIsPostChanged] = useState(false);
 
     useEffect(() => {
-        console.log("called: " + isPostChanged);
         const fetchPost = async () => {
             try {
                 const post = await getPost(id!);

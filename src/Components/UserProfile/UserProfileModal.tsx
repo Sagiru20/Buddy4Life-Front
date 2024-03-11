@@ -60,7 +60,6 @@ function UserProfileModal({ isOpen, closeModal }: UserProfileModalProps) {
     });
 
     const handleCancel = async () => {
-        console.log(oldUserDetails);
         if (oldUserDetails !== undefined) {
             setEditedFirstName(oldUserDetails.firstName);
             setEditedLastName(oldUserDetails.lastName);

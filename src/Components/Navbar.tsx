@@ -160,7 +160,7 @@ function Navbar() {
 
                     <Tooltip title="Open settings">
                         <IconButton onClick={handleOpenUserMenu}>
-                            <Avatar src="/static/images/avatar/2.jpg" />
+                            <Avatar src={auth.userInfo?.imageUrl} />
                         </IconButton>
                     </Tooltip>
 
@@ -184,7 +184,7 @@ function Navbar() {
                             <Typography onClick={() => setShowProfile(true)} textAlign="center">
                                 Profile
                             </Typography>
-                            
+
                             <UserProfileModal isOpen={showProfile} closeModal={() => setShowProfile(false)} />
                         </MenuItem>
 

@@ -37,7 +37,7 @@ function Post() {
                 const post = await getPost(id!);
                 post && setPost(post);
             } catch (error) {
-                console.error("Error fetching posts:", error);
+                console.error("Error fetching posts: ", error);
             } finally {
                 setLoading(false);
             }

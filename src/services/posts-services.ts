@@ -47,6 +47,14 @@ function usePostService(axiosPrivate: AxiosInstance) {
         }
     }
 
+    async function deletePost(id: string) {
+        try {
+            await axiosPrivate.delete<IPostResponse>(`/post/${id}`);
+        } catch (error) {
+            console.error(`Error deleting post with id ${id}: `, error);
+        }
+    }
+
     const createPost = (post: unknown) => {
         return new Promise<void>((resolve, reject) => {
             console.log("Creating post...");
@@ -81,7 +89,7 @@ function usePostService(axiosPrivate: AxiosInstance) {
         return convertedPost;
     }
 
-    return { getPosts, getPost, createPost, editPost };
+    return { getPosts, getPost, deletePost, createPost, editPost };
 }
 
 export default usePostService;

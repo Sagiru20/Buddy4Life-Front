@@ -25,8 +25,8 @@ const Comment = ({ comment, handleDelete, handleEdit }: Props) => {
 
     const [isEditingComm, setIsEditingComm] = useState(false);
     const [commentText, setCommentText] = useState(comment.text);
-    const [openModal, setOpenModal] = useState(false);
     const [commentAuthor, setCommentAuthor] = useState<IUserInfo | undefined>();
+    const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
         const getAuthorDetails = async () => {
@@ -56,7 +56,7 @@ const Comment = ({ comment, handleDelete, handleEdit }: Props) => {
 
     return (
         <>
-            <ConfirmDelete isOpen={openModal} onClose={handleClose} />
+            <ConfirmDelete instanceType="comment" isOpen={openModal} onClose={handleClose} />
 
             <Card style={{ backgroundColor: "#f5f5f5" }}>
                 <Box sx={{ p: 2 }}>
@@ -80,7 +80,6 @@ const Comment = ({ comment, handleDelete, handleEdit }: Props) => {
                                     </Typography>
                                 </Stack>
 
-                                {/* TODO: Check if user is the author of the comment */}
                                 {comment.authorId === auth.userInfo?._id && (
                                     <Stack direction="row" spacing={1}>
                                         <DeleteButton functionality={() => handleOpen()} />

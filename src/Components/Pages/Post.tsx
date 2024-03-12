@@ -62,21 +62,6 @@ function Post() {
         getOwnerDetails();
     }, [id, isPostChanged]);
 
-    // useEffect(() => {
-    //     const getOwnerDetails = async () => {
-    //         try {
-    //             const ownerDetails = await getUser(post?.ownerId);
-    //             ownerDetails && setOwnerName(`${ownerDetails.firstName} ${ownerDetails.lastName}`);
-    //         } catch (error) {
-    //             console.error("Error fetching post owner details: ", error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     getOwnerDetails();
-    // }, []);
-
     if (loading) {
         return (
             <Box sx={{ display: "flex" }}>

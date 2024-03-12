@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, Box, Card, Stack, Typography } from "@mui/material";
+import { IComment, IUserInfo } from "../Models";
+import useAuth from "../hooks/useAuth";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useUserService from "../services/user-services";
 import ConfirmDelete from "./ConfirmDelete";
 import CommentText from "./Reusable/Comment/CommentText";
 import EditableCommentField from "./Reusable/Comment/EditableCommentField";
@@ -7,7 +11,6 @@ import EditButton from "./Reusable/Buttons/TextButtons/EditButton";
 import DeleteButton from "./Reusable/Buttons/TextButtons/DeleteButton";
 import UpdateButton from "./Reusable/Buttons/BgButtons/UpdateButton";
 import CancelButton from "./Reusable/Buttons/BgButtons/CancelButton";
-import { IComment } from "../Models";
 
 interface Props {
     comment: IComment;
@@ -16,12 +19,27 @@ interface Props {
 }
 
 const Comment = ({ comment, handleDelete, handleEdit }: Props) => {
-    const userName = "Annonuymus";
-    const ava = "/static/images/avatar/2.jpg";
+    const { auth } = useAuth();
+    const backendPrivateClient = useAxiosPrivate();
+    const { getUser } = useUserService(backendPrivateClient);
 
     const [isEditingComm, setIsEditingComm] = useState(false);
     const [commentText, setCommentText] = useState(comment.text);
     const [openModal, setOpenModal] = useState(false);
+    const [commentAuthor, setCommentAuthor] = useState<IUserInfo | undefined>();
+
+    useEffect(() => {
+        const getAuthorDetails = async () => {
+            try {
+                const authorDetails = await getUser(comment.authorId);
+                authorDetails && setCommentAuthor(authorDetails);
+            } catch (error) {
+                console.error("Error fetching details about the author of the comment: ", error);
+            }
+        };
+
+        getAuthorDetails();
+    }, []);
 
     const handleOpen = () => {
         setOpenModal(true);
@@ -51,12 +69,10 @@ const Comment = ({ comment, handleDelete, handleEdit }: Props) => {
                                 alignItems="center"
                             >
                                 <Stack spacing={2} direction="row" alignItems="center">
-                                    {/* TODO: Call backend to get author image */}
-                                    <Avatar src={ava} />
+                                    <Avatar src={commentAuthor?.imageUrl} />
 
                                     <Typography fontWeight="bold" sx={{ color: "hsl(212, 24%, 26%)" }}>
-                                        {/* TODO: Call backend to get author name */}
-                                        {userName}
+                                        {`${commentAuthor?.firstName} ${commentAuthor?.lastName}`}
                                     </Typography>
 
                                     <Typography sx={{ color: "hsl(211, 10%, 45%)" }}>
@@ -65,7 +81,7 @@ const Comment = ({ comment, handleDelete, handleEdit }: Props) => {
                                 </Stack>
 
                                 {/* TODO: Check if user is the author of the comment */}
-                                {userName === "Annonuymus" && (
+                                {comment.authorId === auth.userInfo?._id && (
                                     <Stack direction="row" spacing={1}>
                                         <DeleteButton functionality={() => handleOpen()} />
 

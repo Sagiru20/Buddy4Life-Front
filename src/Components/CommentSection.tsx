@@ -8,9 +8,10 @@ import useCommentService from "../services/comments-service";
 
 interface Props {
     post: IPost;
+    renderCommentsCount: () => void;
 }
 
-function CommentSection({ post }: Props) {
+function CommentSection({ post, renderCommentsCount }: Props) {
     const backendPrivateClient = useAxiosPrivate();
     const { createComment, editComment, deleteComment } = useCommentService(backendPrivateClient);
 
@@ -20,6 +21,7 @@ function CommentSection({ post }: Props) {
         const createdComment = await createComment(post._id, text);
         if (createdComment) {
             setComments([createdComment, ...comments]);
+            renderCommentsCount();
         } else {
             console.error("Error creating comment");
         }
@@ -37,6 +39,7 @@ function CommentSection({ post }: Props) {
     const removeComment = async (commentId: string) => {
         await deleteComment(post._id, commentId);
         setComments(comments.filter((comment) => comment._id !== commentId));
+        renderCommentsCount();
     };
 
     useEffect(() => {

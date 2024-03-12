@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { blue } from "@mui/material/colors";
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
@@ -16,24 +16,19 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
+import { backendClient } from "../../services/BackendClient";
+import useUserService, { IUser } from "../../services/user-services";
 import DogParkImage from "../../assets/dog_park.jpg";
 
 export default function RegisterSide() {
+    const navigate = useNavigate();
+    const { registerUser } = useUserService(backendClient);
+
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        // TODO send the data and register
-        console.log("First Name:", firstName);
-        console.log("Last Name:", lastName);
-        console.log("Email:", email);
-        console.log("Password:", password);
-    };
 
     const handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFirstName(event.target.value);
@@ -55,9 +50,31 @@ export default function RegisterSide() {
         setShowPassword(!showPassword);
     };
 
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        register();
+    };
+
+    const register = async () => {
+        const user: IUser = {
+            email: email,
+            password: password,
+            firstName: firstName,
+            lastName: lastName,
+        };
+
+        try {
+            await registerUser(user);
+            navigate("/signin");
+        } catch (error) {
+            console.log("Register failed: " + error);
+        }
+    };
+
     return (
         <Grid container component="main" sx={{ height: "100vh" }}>
             <CssBaseline />
+
             <Grid
                 item
                 xs={false}
@@ -72,6 +89,7 @@ export default function RegisterSide() {
                     backgroundPosition: "left",
                 }}
             />
+
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <Box
                     sx={{

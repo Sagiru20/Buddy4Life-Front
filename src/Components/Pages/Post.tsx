@@ -207,7 +207,7 @@ function Post() {
                                     Comments ({post?.comments?.length})
                                 </Typography>
 
-                                <CommentSection post={post} />
+                                <CommentSection post={post} renderCommentsCount={renderPostData} />
                             </CardContent>
                         </Card>
                     </Grid>

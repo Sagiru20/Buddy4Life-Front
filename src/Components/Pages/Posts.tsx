@@ -121,6 +121,7 @@ function Posts() {
 
             <Container>
                 <Divider flexItem sx={{ mb: 5 }} />
+
                 <Grid container spacing={12} display="flex">
                     {posts.map((post, index) => (
                         <Grid
@@ -141,6 +142,7 @@ function Posts() {
                                 gender={post.dogInfo!.gender!}
                                 age={post.dogInfo!.age!}
                                 description={post.description}
+                                imageUrl={post.imageUrl}
                             />
                         </Grid>
                     ))}

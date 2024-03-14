@@ -7,11 +7,11 @@ const AuthContext = createContext<{
     setAuth: React.Dispatch<React.SetStateAction<ILoggedUser>>;
     persist: boolean;
     setPersist: React.Dispatch<React.SetStateAction<boolean>>;
-}>({ auth: {}, setAuth: () => {}, persist: false, setPersist: () => {} });
+}>({ auth: {}, setAuth: () => {}, persist: true, setPersist: () => {} });
 
 export function AuthProvider({ children }: PropsWithChildren) {
     const [auth, setAuth] = useState<ILoggedUser>({});
-    const [persist, setPersist] = useState<boolean>(JSON.parse(localStorage.getItem("persist") || "false"));
+    const [persist, setPersist] = useState<boolean>(JSON.parse(localStorage.getItem("persist") || "true"));
 
     return (
         <AuthContext.Provider value={{ auth, setAuth, persist, setPersist }}>{children}</AuthContext.Provider>

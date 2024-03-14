@@ -223,7 +223,7 @@ export default function PostFormModal({ isOpen, closeModal, postId }: PostFormMo
                         id="breed"
                         options={breedNames}
                         fullWidth
-                        // label="Breed"
+                        label="Breed"
                         value={formData.breed}
                         onChange={handleBreedChange}
                         renderInput={(params) => (

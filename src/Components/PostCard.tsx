@@ -12,6 +12,7 @@ import {
     styled,
 } from "@mui/material";
 import { Gender } from "../Models";
+import DogImage from "../assets/dog_image.jpg";
 
 const EllipsisTypography = styled(Typography)({
     display: "-webkit-box",
@@ -34,12 +35,7 @@ interface Props {
 export default function PostCard({ id, name, breed, gender, age, description, imageUrl }: Props) {
     return (
         <Card sx={{ width: 345, borderRadius: 3 }}>
-            <CardMedia
-                component="img"
-                alt="Dog Image"
-                height="140"
-                image={imageUrl ? imageUrl : "/src/assets/dog_image.jpg"}
-            />
+            <CardMedia component="img" alt="Dog Image" height="140" image={imageUrl ? imageUrl : DogImage} />
 
             <CardContent>
                 <Typography gutterBottom variant="h5" component="div">

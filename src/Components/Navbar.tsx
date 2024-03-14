@@ -155,7 +155,9 @@ function Navbar() {
                             textDecoration: "none",
                         }}
                     >
-                        {auth?.userInfo?.firstName + " " + auth?.userInfo?.lastName}
+                        {(auth?.userInfo?.firstName ? auth.userInfo.firstName : "") +
+                            " " +
+                            (auth?.userInfo?.lastName ? auth.userInfo.lastName : "")}
                     </Typography>
 
                     <Tooltip title="Open settings">

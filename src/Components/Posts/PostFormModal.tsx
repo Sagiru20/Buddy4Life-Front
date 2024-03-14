@@ -245,7 +245,6 @@ export default function PostFormModal({ isOpen, closeModal, postId }: PostFormMo
                         name="gender"
                         select
                         value={formData.gender}
-                        error={formData.gender == "" && showErrors}
                         onChange={handleGenderChange}
                     >
                         <MenuItem value="male">Male</MenuItem>

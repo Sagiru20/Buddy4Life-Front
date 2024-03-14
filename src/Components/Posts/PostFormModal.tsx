@@ -25,7 +25,7 @@ export interface PostData {
     title: string;
     description: string;
     breed: string;
-    gender?: Gender;
+    gender: Gender;
     city: string;
     name: string;
     age: number;
@@ -209,8 +209,8 @@ export default function PostFormModal({ isOpen, closeModal, postId }: PostFormMo
         }
     };
 
-    const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: string) => {
-        setFormData({ ...formData, breed: newBreed });
+    const handleBreedChange = (_event: SyntheticEvent<Element, Event>, newBreed: string | null) => {
+        setFormData({ ...formData, breed: newBreed! });
     };
 
     const steps = [
@@ -223,7 +223,6 @@ export default function PostFormModal({ isOpen, closeModal, postId }: PostFormMo
                         id="breed"
                         options={breedNames}
                         fullWidth
-                        label="Breed"
                         value={formData.breed}
                         onChange={handleBreedChange}
                         renderInput={(params) => (

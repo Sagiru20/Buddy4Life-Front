@@ -50,6 +50,10 @@ function Post() {
             }
         };
 
+        fetchPost();
+    }, [id, isPostChanged]);
+
+    useEffect(() => {
         const getOwnerDetails = async () => {
             try {
                 const ownerDetails = await getUser(post?.ownerId);
@@ -61,9 +65,8 @@ function Post() {
             }
         };
 
-        fetchPost();
         getOwnerDetails();
-    }, [id, isPostChanged]);
+    }, [post]);
 
     if (loading) {
         return (
